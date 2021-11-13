@@ -1,1 +1,1 @@
-export const hogehogehoge = 123 / 100;
+export * from './core';
