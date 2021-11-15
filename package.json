@@ -2,12 +2,33 @@
   "name": "use-simple-atom",
   "version": "0.0.0",
   "description": "",
+  "keywords": [
+    "react",
+    "react-hooks",
+    "hooks",
+    "atom"
+  ],
+  "homepage": "https://github.com/kqito/use-simple-atom#readme",
+  "bugs": {
+    "url": "https://github.com/kqito/use-simple-atom/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kqito/use-simple-atom.git"
+  },
+  "license": "MIT",
+  "author": "Nakagawa kaito",
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
   "scripts": {
-    "build": "cross-env NODE_ENV=production npm-run-all -s clean build:swc",
-    "build:swc": "webpack --config ./webpack.config.js",
+    "build": "cross-env NODE_ENV=production npm-run-all -s clean build:rollup",
+    "build:rollup": "rollup -c",
     "test": "cross-env NODE_ENV=TEST jest",
     "type": "tsc --noEmit",
     "format": "npm-run-all -s format:*",
@@ -22,34 +43,16 @@
     "storybook:deploy": "npm-run-all -s storybook:build storybook:static",
     "build-storybook": "build-storybook"
   },
-  "keywords": [
-    "react",
-    "react-hooks",
-    "hooks",
-    "atom"
-  ],
-  "files": [
-    "dist",
-    "LICENSE",
-    "README.md"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/kqito/use-simple-atom.git"
-  },
-  "author": "Nakagawa kaito",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/kqito/use-simple-atom/issues"
-  },
-  "homepage": "https://github.com/kqito/use-simple-atom#readme",
   "devDependencies": {
+    "@babel/core": "^7.16.0",
+    "@babel/preset-react": "^7.16.0",
+    "@rollup/plugin-babel": "^5.3.0",
+    "@rollup/plugin-node-resolve": "^13.0.6",
+    "@rollup/plugin-typescript": "^8.3.0",
     "@storybook/addon-actions": "^6.2.9",
     "@storybook/addon-essentials": "^6.2.9",
     "@storybook/addon-links": "^6.2.9",
     "@storybook/react": "^6.2.9",
-    "@swc/cli": "^0.1.51",
-    "@swc/core": "^1.2.108",
     "@testing-library/jest-dom": "^5.11.10",
     "@testing-library/react": "^11.2.6",
     "@testing-library/react-hooks": "^5.1.1",
@@ -78,12 +81,10 @@
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "rimraf": "^3.0.2",
-    "swc-loader": "^0.1.15",
+    "rollup": "^2.60.0",
     "ts-jest": "^26.5.4",
     "ts-loader": "^9.2.6",
-    "typescript": "^4.2.3",
-    "webpack": "^5.64.0",
-    "webpack-cli": "^4.9.1"
+    "typescript": "^4.2.3"
   },
   "peerDependencies": {
     "react": "^16.8.0 || ^17.0.0"

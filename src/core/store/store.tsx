@@ -1,4 +1,4 @@
-import { createContext, FC, useRef } from 'react';
+import { createContext } from 'react';
 
 type Store = {
   atoms: Map<string, unknown>;
@@ -6,19 +6,9 @@ type Store = {
   listeners: Array<(key: string, value: any) => void>;
 };
 
-const createStore = (): Store => ({
+export const createStore = (): Store => ({
   atoms: new Map(),
   listeners: [],
 });
 
 export const StoreContext = createContext<Store>(createStore());
-
-export const StoreProvider: FC = ({ children }) => {
-  const storeRef = useRef(createStore());
-
-  return (
-    <StoreContext.Provider value={storeRef.current}>
-      {children}
-    </StoreContext.Provider>
-  );
-};
