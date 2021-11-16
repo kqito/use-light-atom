@@ -2,10 +2,9 @@ import type { NextPage } from 'next';
 import Link from 'next/link';
 import Head from 'next/head';
 import styles from '../styles/Home.module.css';
-import { Form, UserInfo } from '../components/User';
 import { Counter, CounterButton } from '../components/Counter';
 
-const Home: NextPage = () => {
+const CounterPage: NextPage = () => {
   return (
     <div className={styles.container}>
       <Head>
@@ -15,13 +14,11 @@ const Home: NextPage = () => {
 
       <main className={styles.main}>
         <h1 className={styles.title}>
-          <Link href="/counter">
-            <a>Go to /counter</a>
+          <Link href="/">
+            <a>Go to /</a>
           </Link>
         </h1>
 
-        <UserInfo />
-        <Form />
         <Counter />
         <CounterButton />
       </main>
@@ -29,4 +26,4 @@ const Home: NextPage = () => {
   );
 };
 
-export default Home;
+export default CounterPage;

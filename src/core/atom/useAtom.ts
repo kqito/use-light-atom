@@ -6,11 +6,17 @@ import {
   useRef,
   useState,
 } from 'react';
+import { devlog } from '../../utils/devlog';
 import { StoreContext } from '../store/store';
 import { Atom } from './atom';
 
-export function useAtom<T, S = T>(atom: Atom<T>): S;
-export function useAtom<T, S>(atom: Atom<T>, selector: (value: T) => S): S;
+type Dispatch<T> = (updater: (value: T) => Partial<T>) => void;
+
+export function useAtom<T, S = T>(atom: Atom<T>): [S, Dispatch<T>];
+export function useAtom<T, S>(
+  atom: Atom<T>,
+  selector: (value: T) => S
+): [S, Dispatch<T>];
 export function useAtom<T, S>(atom: Atom<T>, selector?: (value: T) => S) {
   const getState = useCallback(
     (value: T): S => (selector ? selector(value) : value) as S,
@@ -28,6 +34,15 @@ export function useAtom<T, S>(atom: Atom<T>, selector?: (value: T) => S) {
 
   const [state, setState] = useState<S>(initialState);
   const stateRef = useRef<S>(initialState);
+
+  useEffect(() => {
+    if (store.atoms.has(atom.key)) {
+      devlog('Already registerd', atom);
+      return;
+    }
+
+    store.atoms.set(atom.key, atom.value);
+  }, [atom, store.atoms]);
 
   useEffect(() => {
     const listener = (key: string, value: T) => {
@@ -56,5 +71,27 @@ export function useAtom<T, S>(atom: Atom<T>, selector?: (value: T) => S) {
     };
   }, [atom.key, getState, store.listeners]);
 
-  return state;
+  const dispatch = useCallback<Dispatch<T>>(
+    (updater) => {
+      devlog('dispatch', atom.key);
+
+      if (!store.atoms.get(atom.key)) {
+        devlog('ERROR', atom.key);
+        return;
+      }
+
+      const prevState = store.atoms.get(atom.key) as T;
+
+      const newValue: T = {
+        ...prevState,
+        ...updater(prevState),
+      };
+
+      store.atoms.set(atom.key, newValue);
+      store.listeners.map((listener) => listener(atom.key, newValue));
+    },
+    [atom.key, store.atoms, store.listeners]
+  );
+
+  return [state, dispatch];
 }
