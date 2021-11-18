@@ -2,7 +2,12 @@ import type { NextPage } from 'next';
 import Link from 'next/link';
 import Head from 'next/head';
 import styles from '../styles/Home.module.css';
-import { Counter, CounterButton } from '../components/Counter';
+import {
+  AsyncCounterButton,
+  Counter,
+  CounterButton,
+  ResetCounterButton,
+} from '../components/Counter';
 
 const CounterPage: NextPage = () => {
   return (
@@ -21,6 +26,8 @@ const CounterPage: NextPage = () => {
 
         <Counter />
         <CounterButton />
+        <AsyncCounterButton />
+        <ResetCounterButton />
       </main>
     </div>
   );

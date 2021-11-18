@@ -9,7 +9,7 @@ export const userAtom = createAtom('user', {
 export const UserInfo = () => {
   const [user] = useAtom(userAtom);
 
-  console.log('UserInfo');
+  console.log('Render: UserInfo');
 
   return (
     <div>
@@ -22,7 +22,7 @@ export const UserInfo = () => {
 export const Form = () => {
   const [user, dispatch] = useAtom(userAtom);
 
-  console.log('Form');
+  console.log('Render: Form');
 
   useEffect(() => {
     setTimeout(() => {

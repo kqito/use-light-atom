@@ -6,11 +6,10 @@ import {
   useRef,
   useState,
 } from 'react';
-import { devlog } from '../../utils/devlog';
-import { StoreContext } from '../store/store';
+import { Listener, StoreContext } from '../store/store';
 import { Atom } from './atom';
 
-type Dispatch<T> = (updater: (value: T) => Partial<T>) => void;
+type Dispatch<T> = (getState: ((value: T) => T) | T) => void;
 
 export function useAtom<T, S = T>(atom: Atom<T>): [S, Dispatch<T>];
 export function useAtom<T, S>(
@@ -26,31 +25,25 @@ export function useAtom<T, S>(atom: Atom<T>, selector?: (value: T) => S) {
   const store = useContext(StoreContext);
 
   const initialState = useMemo(() => {
-    const storedValue = store.atoms.get(atom.key) as T;
-    const targetValue = storedValue !== undefined ? storedValue : atom.value;
-
-    return getState(targetValue);
-  }, [atom.key, atom.value, getState, store.atoms]);
+    try {
+      const storedValue = store.getAtomValue<T>(atom.key);
+      return getState(storedValue);
+    } catch {
+      store.addAtom(atom);
+      return getState(atom.value);
+    }
+  }, [atom, getState, store]);
 
   const [state, setState] = useState<S>(initialState);
   const stateRef = useRef<S>(initialState);
 
   useEffect(() => {
-    if (store.atoms.has(atom.key)) {
-      devlog('Already registerd', atom);
-      return;
-    }
-
-    store.atoms.set(atom.key, atom.value);
-  }, [atom, store.atoms]);
-
-  useEffect(() => {
-    const listener = (key: string, value: T) => {
+    const listener: Listener = (key, value) => {
       if (atom.key !== key) {
         return;
       }
 
-      const newState = getState(value);
+      const newState = getState(value as T);
 
       if (stateRef.current === newState) {
         return;
@@ -60,37 +53,25 @@ export function useAtom<T, S>(atom: Atom<T>, selector?: (value: T) => S) {
       setState(newState);
     };
 
-    store.listeners.push(listener);
+    store.subscribe(listener);
 
     return () => {
-      const index = store.listeners.indexOf(listener);
-
-      if (index > -1) {
-        store.listeners.splice(index, 1);
-      }
+      store.unsubscribe(listener);
     };
-  }, [atom.key, getState, store.listeners]);
+  }, [atom.key, getState, store]);
 
   const dispatch = useCallback<Dispatch<T>>(
-    (updater) => {
-      devlog('dispatch', atom.key);
+    (getState) => {
+      const unknownGetState = getState as unknown;
+      const prevState = store.getAtomValue<T>(atom.key);
+      const newValue: T =
+        typeof unknownGetState === 'function'
+          ? unknownGetState(prevState)
+          : unknownGetState;
 
-      if (!store.atoms.get(atom.key)) {
-        devlog('ERROR', atom.key);
-        return;
-      }
-
-      const prevState = store.atoms.get(atom.key) as T;
-
-      const newValue: T = {
-        ...prevState,
-        ...updater(prevState),
-      };
-
-      store.atoms.set(atom.key, newValue);
-      store.listeners.map((listener) => listener(atom.key, newValue));
+      store.dispatch(atom.key, newValue);
     },
-    [atom.key, store.atoms, store.listeners]
+    [atom.key, store]
   );
 
   return [state, dispatch];

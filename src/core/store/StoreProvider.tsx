@@ -1,8 +1,12 @@
 import { FC, useRef } from 'react';
-import { createStore, StoreContext } from './store';
+import { createStore, IStore, StoreContext } from './store';
 
-export const StoreProvider: FC = ({ children }) => {
-  const storeRef = useRef(createStore());
+type StoreProviderProps = Readonly<{
+  store?: IStore;
+}>;
+
+export const StoreProvider: FC<StoreProviderProps> = ({ store, children }) => {
+  const storeRef = useRef(store ? store : createStore());
 
   return (
     <StoreContext.Provider value={storeRef.current}>

@@ -3,7 +3,12 @@ import Link from 'next/link';
 import Head from 'next/head';
 import styles from '../styles/Home.module.css';
 import { Form, UserInfo } from '../components/User';
-import { Counter, CounterButton } from '../components/Counter';
+import {
+  AsyncCounterButton,
+  Counter,
+  CounterButton,
+  ResetCounterButton,
+} from '../components/Counter';
 
 const Home: NextPage = () => {
   return (
@@ -24,6 +29,8 @@ const Home: NextPage = () => {
         <Form />
         <Counter />
         <CounterButton />
+        <AsyncCounterButton />
+        <ResetCounterButton />
       </main>
     </div>
   );

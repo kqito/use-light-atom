@@ -1,13 +1,12 @@
 import '../styles/globals.css';
 import type { AppProps } from 'next/app';
-import * as dist from '../dist/index.esm';
-import { StoreProvider } from '../dist/index.esm';
+import { StoreProvider, createStore } from '../dist/index';
 
-console.log(dist);
+export const store = createStore();
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
-    <StoreProvider>
+    <StoreProvider store={store}>
       <Component {...pageProps} />
     </StoreProvider>
   );
