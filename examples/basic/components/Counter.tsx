@@ -1,4 +1,5 @@
-import { createAtom, useAtom, useAtomValue } from '../dist';
+import { useEffect, useLayoutEffect } from 'react';
+import { createAtom, useAtom, useAtomDispatch, useAtomValue } from '../dist';
 
 export const countAtom = createAtom('counter', 0);
 
@@ -66,4 +67,15 @@ export const ResetCounterButton = () => {
       <button onClick={() => dispatch(0)}>ResetCounterButton: {count}</button>
     </div>
   );
+};
+
+export const FirstIncrement = () => {
+  const count = useAtomValue(countAtom);
+  const dispatch = useAtomDispatch(countAtom);
+
+  useEffect(() => {
+    dispatch(count <= 0 ? 99 : count * 2);
+  }, []);
+
+  return null;
 };

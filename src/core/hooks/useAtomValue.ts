@@ -1,7 +1,9 @@
-import { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { useContext, useMemo, useRef, useState } from 'react';
 import { Listener, StoreContext } from '../store/store';
 import { Atom } from '../atom/atom';
 import { Selector, useSelectValue } from '../../utils/useSelectValue';
+import { useIsomorphicLayoutEffect } from '../../utils/useIsomorphicLayoutEffect';
+import { isProduction } from '../../utils/isProduction';
 
 export type UseAtomValue = {
   <T, S = T>(atom: Atom<T>): S;
@@ -15,7 +17,7 @@ export const useAtomValue: UseAtomValue = <T, S>(
   const store = useContext(StoreContext);
   const selectValue = useSelectValue(selector);
 
-  const initialValue = useMemo(() => {
+  const initialState = useMemo((): S => {
     try {
       const storedValue = store.getAtomValue<T>(atom.key);
       return selectValue(storedValue);
@@ -25,23 +27,30 @@ export const useAtomValue: UseAtomValue = <T, S>(
     }
   }, [atom, selectValue, store]);
 
-  const [state, setValue] = useState<S>(initialValue);
-  const stateRef = useRef<S>(initialValue);
+  const [state, setValue] = useState<S>(initialState);
+  const prevStateRef = useRef<S>(initialState);
 
-  useEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     const listener: Listener = (key, value) => {
-      if (atom.key !== key) {
-        return;
+      try {
+        if (atom.key !== key) {
+          return;
+        }
+
+        const newValue = selectValue(value as T);
+        if (prevStateRef.current === newValue) {
+          return;
+        }
+
+        prevStateRef.current = newValue;
+        setValue(newValue);
+      } catch (err) {
+        if (isProduction) {
+          return;
+        }
+
+        console.error(err);
       }
-
-      const newValue = selectValue(value as T);
-
-      if (stateRef.current === newValue) {
-        return;
-      }
-
-      stateRef.current = newValue;
-      setValue(newValue);
     };
 
     store.subscribe(listener);

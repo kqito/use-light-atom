@@ -1,7 +1,7 @@
 import { FC, useRef } from 'react';
 import { createStore, IStore, StoreContext } from './store';
 
-type StoreProviderProps = Readonly<{
+export type StoreProviderProps = Readonly<{
   store?: IStore;
 }>;
 

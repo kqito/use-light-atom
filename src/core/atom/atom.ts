@@ -3,7 +3,7 @@ export type Atom<T> = {
   value: T;
 };
 
-type CreateAtom = {
+export type CreateAtom = {
   <T>(key: string, value: T): Atom<T>;
 };
 

@@ -6,6 +6,7 @@ import {
   AsyncCounterButton,
   Counter,
   CounterButton,
+  FirstIncrement,
   ResetCounterButton,
   SelectorTest,
 } from '../components/Counter';
@@ -26,6 +27,7 @@ const CounterPage: NextPage = () => {
           </Link>
         </h1>
 
+        <FirstIncrement />
         <StoreInfo />
         <Counter />
         <SelectorTest />

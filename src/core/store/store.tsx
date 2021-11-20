@@ -3,20 +3,37 @@ import { Atom } from '../atom/atom';
 
 export type Listener = (key: string, value: unknown) => void;
 
-export interface IStore {
+export type StoreOptions<
+  V extends Record<string, unknown> = Record<string, unknown>
+> = {
+  initialValue?: V;
+};
+
+export type IStore<
+  V extends Record<string, unknown> = Record<string, unknown>
+> = {
   getAtomValue: <T = unknown>(key: string) => T;
+  getValue: () => V;
   addAtom: <T>(atom: Atom<T>) => void;
   subscribe: (listener: Listener) => void;
   unsubscribe: (listener: Listener) => void;
   dispatch: (key: string, value: unknown) => void;
-}
+};
 
-class Store implements IStore {
+class Store<V extends Record<string, unknown> = Record<string, unknown>>
+  implements IStore<V>
+{
   private atoms: Map<string, unknown>;
   private listeners: Array<(key: string, value: unknown) => void>;
 
-  constructor() {
-    this.atoms = new Map();
+  constructor({ initialValue }: StoreOptions<V> = {}) {
+    // Set initial value
+    const atoms = new Map();
+    for (const [key, value] of Object.entries(initialValue || {})) {
+      atoms.set(key, value);
+    }
+
+    this.atoms = atoms;
     this.listeners = [];
   }
 
@@ -26,6 +43,10 @@ class Store implements IStore {
     }
 
     return this.atoms.get(key) as T;
+  }
+
+  getValue(): V {
+    return Object.fromEntries(this.atoms) as V;
   }
 
   addAtom<T>(atom: Atom<T>) {
@@ -60,6 +81,10 @@ class Store implements IStore {
   }
 }
 
-export const createStore = (): IStore => new Store();
+export const createStore = <
+  V extends Record<string, unknown> = Record<string, unknown>
+>(
+  storeOptions: StoreOptions<V> = {}
+) => new Store<V>(storeOptions);
 
 export const StoreContext = createContext<IStore>(createStore());
