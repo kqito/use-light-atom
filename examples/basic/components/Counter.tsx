@@ -1,13 +1,9 @@
-import { createAtom, useAtom } from '../dist';
-import { store } from '../pages/_app';
+import { createAtom, useAtom, useAtomValue } from '../dist';
 
 export const countAtom = createAtom('counter', 0);
 
 export const Counter = () => {
   const [count] = useAtom(countAtom);
-
-  console.log('Store', store);
-  // console.log('Render: Counter', count);
 
   return (
     <div>
@@ -16,10 +12,22 @@ export const Counter = () => {
   );
 };
 
+export const SelectorTest = () => {
+  const [count] = useAtom(countAtom);
+  const count2 = useAtomValue(
+    countAtom,
+    count < 10 ? () => 'count is smaller than 10' : () => 'count is 10 or over'
+  );
+
+  return (
+    <div style={{ marginTop: '8px' }}>
+      <div>SelectorTest: {count2}</div>
+    </div>
+  );
+};
+
 export const CounterButton = () => {
   const [count, dispatch] = useAtom(countAtom, (count) => count);
-
-  // console.log('Render: CounterButton', count);
 
   return (
     <div style={{ marginTop: '8px' }}>
@@ -34,8 +42,6 @@ export const CounterButton = () => {
 
 export const AsyncCounterButton = () => {
   const [count, dispatch] = useAtom(countAtom, (count) => count);
-
-  // console.log('Render: AsyncCounterButton', count);
 
   return (
     <div style={{ marginTop: '8px' }}>
@@ -54,8 +60,6 @@ export const AsyncCounterButton = () => {
 
 export const ResetCounterButton = () => {
   const [count, dispatch] = useAtom(countAtom, (count) => count);
-
-  // console.log('Render: ResetCounterButton', count);
 
   return (
     <div style={{ marginTop: '8px' }}>

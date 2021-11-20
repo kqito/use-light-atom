@@ -7,7 +7,9 @@ import {
   Counter,
   CounterButton,
   ResetCounterButton,
+  SelectorTest,
 } from '../components/Counter';
+import { StoreInfo } from '../components/StoreInfo';
 
 const CounterPage: NextPage = () => {
   return (
@@ -24,7 +26,9 @@ const CounterPage: NextPage = () => {
           </Link>
         </h1>
 
+        <StoreInfo />
         <Counter />
+        <SelectorTest />
         <CounterButton />
         <AsyncCounterButton />
         <ResetCounterButton />
