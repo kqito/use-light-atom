@@ -1,32 +1,26 @@
 import { createContext } from 'react';
 import { Atom } from '../atom/atom';
 
-export type Listener = (key: string, value: unknown) => void;
+export type Listener = (key: string, state: unknown) => void;
 
-export type StoreOptions<
-  V extends Record<string, unknown> = Record<string, unknown>
-> = {
-  initialValue?: V;
+export type StoreOptions = {
+  initialValue?: Record<string, unknown>;
 };
 
-export type IStore<
-  V extends Record<string, unknown> = Record<string, unknown>
-> = {
-  getAtomValue: <T = unknown>(key: string) => T;
-  getValue: () => V;
+export type IStore = {
+  getAtomState: <T = unknown>(key: string) => T;
+  getState: () => Record<string, unknown>;
   addAtom: <T>(atom: Atom<T>) => void;
   subscribe: (listener: Listener) => void;
   unsubscribe: (listener: Listener) => void;
-  dispatch: (key: string, value: unknown) => void;
+  dispatch: (key: string, state: unknown) => void;
 };
 
-class Store<V extends Record<string, unknown> = Record<string, unknown>>
-  implements IStore<V>
-{
+class Store implements IStore {
   private atoms: Map<string, unknown>;
-  private listeners: Array<(key: string, value: unknown) => void>;
+  private listeners: Array<(key: string, state: unknown) => void>;
 
-  constructor({ initialValue }: StoreOptions<V> = {}) {
+  constructor({ initialValue }: StoreOptions = {}) {
     // Set initial value
     const atoms = new Map();
     for (const [key, value] of Object.entries(initialValue || {})) {
@@ -37,7 +31,7 @@ class Store<V extends Record<string, unknown> = Record<string, unknown>>
     this.listeners = [];
   }
 
-  getAtomValue<T = unknown>(key: string) {
+  getAtomState<T = unknown>(key: string) {
     if (!this.atoms.has(key)) {
       throw new Error(`Undefined atom: ${key}`);
     }
@@ -45,8 +39,8 @@ class Store<V extends Record<string, unknown> = Record<string, unknown>>
     return this.atoms.get(key) as T;
   }
 
-  getValue(): V {
-    return Object.fromEntries(this.atoms) as V;
+  getState(): Record<string, unknown> {
+    return Object.fromEntries(this.atoms);
   }
 
   addAtom<T>(atom: Atom<T>) {
@@ -69,22 +63,19 @@ class Store<V extends Record<string, unknown> = Record<string, unknown>>
     }
   }
 
-  dispatch(key: string, value: unknown) {
+  dispatch(key: string, state: unknown) {
     if (!this.atoms.has(key)) {
       throw new Error(`Undefined atom: ${key}`);
     }
 
-    this.atoms.set(key, value);
+    this.atoms.set(key, state);
     for (const listener of this.listeners) {
-      listener(key, value);
+      listener(key, state);
     }
   }
 }
 
-export const createStore = <
-  V extends Record<string, unknown> = Record<string, unknown>
->(
-  storeOptions: StoreOptions<V> = {}
-) => new Store<V>(storeOptions);
+export const createStore = (storeOptions: StoreOptions = {}) =>
+  new Store(storeOptions);
 
 export const StoreContext = createContext<IStore>(createStore());

@@ -1,5 +1,5 @@
-import { useEffect, useLayoutEffect } from 'react';
-import { createAtom, useAtom, useAtomDispatch, useAtomValue } from '../dist';
+import { useEffect } from 'react';
+import { createAtom, useAtom, useAtomSetState, useAtomState } from '../dist';
 
 export const countAtom = createAtom('counter', 0);
 
@@ -15,10 +15,12 @@ export const Counter = () => {
 
 export const SelectorTest = () => {
   const [count] = useAtom(countAtom);
-  const count2 = useAtomValue(
-    countAtom,
-    count < 10 ? () => 'count is smaller than 10' : () => 'count is 10 or over'
-  );
+  const count2 = useAtomState(countAtom, {
+    selector:
+      count < 10
+        ? () => 'count is smaller than 10'
+        : () => 'count is 10 or over',
+  });
 
   return (
     <div style={{ marginTop: '8px' }}>
@@ -28,12 +30,12 @@ export const SelectorTest = () => {
 };
 
 export const CounterButton = () => {
-  const [count, dispatch] = useAtom(countAtom, (count) => count);
+  const [count, setState] = useAtom(countAtom, { selector: (count) => count });
 
   return (
     <div style={{ marginTop: '8px' }}>
       <div>
-        <button onClick={() => dispatch(count + 1)}>
+        <button onClick={() => setState(count + 1)}>
           CounterButton: {count}
         </button>
       </div>
@@ -42,14 +44,16 @@ export const CounterButton = () => {
 };
 
 export const AsyncCounterButton = () => {
-  const [count, dispatch] = useAtom(countAtom, (count) => count);
+  const [count, setState] = useAtom(countAtom, {
+    selector: (count) => count,
+  });
 
   return (
     <div style={{ marginTop: '8px' }}>
       <button
         onClick={async () =>
           setTimeout(() => {
-            dispatch((count) => count + 1);
+            setState((count) => count + 1);
           }, 1000)
         }
       >
@@ -60,21 +64,23 @@ export const AsyncCounterButton = () => {
 };
 
 export const ResetCounterButton = () => {
-  const [count, dispatch] = useAtom(countAtom, (count) => count);
+  const [count, setState] = useAtom(countAtom, {
+    selector: (count) => count,
+  });
 
   return (
     <div style={{ marginTop: '8px' }}>
-      <button onClick={() => dispatch(0)}>ResetCounterButton: {count}</button>
+      <button onClick={() => setState(0)}>ResetCounterButton: {count}</button>
     </div>
   );
 };
 
 export const FirstIncrement = () => {
-  const count = useAtomValue(countAtom);
-  const dispatch = useAtomDispatch(countAtom);
+  const count = useAtomState(countAtom);
+  const setState = useAtomSetState(countAtom);
 
   useEffect(() => {
-    dispatch(count <= 0 ? 99 : count * 2);
+    setState(count <= 0 ? 99 : count * 2);
   }, []);
 
   return null;

@@ -1,49 +1,53 @@
 import { useContext, useMemo, useRef, useState } from 'react';
 import { Listener, StoreContext } from '../store/store';
 import { Atom } from '../atom/atom';
-import { Selector, useSelectValue } from '../../utils/useSelectValue';
+import { Selector, useSelectState } from '../../utils/useSelectState';
 import { useIsomorphicLayoutEffect } from '../../utils/useIsomorphicLayoutEffect';
 import { isProduction } from '../../utils/isProduction';
 
-export type UseAtomValue = {
-  <T, S = T>(atom: Atom<T>): S;
-  <T, S>(atom: Atom<T>, selector?: Selector<T, S>): S;
+export type UseAtomStateOptions<T, S> = {
+  selector?: Selector<T, S>;
 };
 
-export const useAtomValue: UseAtomValue = <T, S>(
+export type UseAtomState = {
+  <T, S = T>(atom: Atom<T>): S;
+  <T, S>(atom: Atom<T>, useAtomStateOptions?: UseAtomStateOptions<T, S>): S;
+};
+
+export const useAtomState: UseAtomState = <T, S>(
   atom: Atom<T>,
-  selector?: Selector<T, S>
+  { selector }: UseAtomStateOptions<T, S> = {}
 ) => {
   const store = useContext(StoreContext);
-  const selectValue = useSelectValue(selector);
+  const selectState = useSelectState(selector);
 
   const initialState = useMemo((): S => {
     try {
-      const storedValue = store.getAtomValue<T>(atom.key);
-      return selectValue(storedValue);
+      const state = store.getAtomState<T>(atom.key);
+      return selectState(state);
     } catch {
       store.addAtom(atom);
-      return selectValue(atom.value);
+      return selectState(atom.value);
     }
-  }, [atom, selectValue, store]);
+  }, [atom, selectState, store]);
 
-  const [state, setValue] = useState<S>(initialState);
+  const [state, setState] = useState<S>(initialState);
   const prevStateRef = useRef<S>(initialState);
 
   useIsomorphicLayoutEffect(() => {
-    const listener: Listener = (key, value) => {
+    const listener: Listener = (key, state) => {
       try {
         if (atom.key !== key) {
           return;
         }
 
-        const newValue = selectValue(value as T);
-        if (prevStateRef.current === newValue) {
+        const newState = selectState(state as T);
+        if (prevStateRef.current === newState) {
           return;
         }
 
-        prevStateRef.current = newValue;
-        setValue(newValue);
+        prevStateRef.current = newState;
+        setState(newState);
       } catch (err) {
         if (isProduction) {
           return;
@@ -58,7 +62,7 @@ export const useAtomValue: UseAtomValue = <T, S>(
     return () => {
       store.unsubscribe(listener);
     };
-  }, [atom.key, selectValue, store]);
+  }, [atom.key, selectState, store]);
 
   return state;
 };

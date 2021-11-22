@@ -1,7 +1,7 @@
 {
   "name": "use-simple-atom",
   "version": "0.0.0",
-  "description": "",
+  "description": "A simple atom-based state management for react",
   "keywords": [
     "react",
     "react-hooks",

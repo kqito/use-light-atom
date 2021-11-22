@@ -7,7 +7,7 @@ import { useAtom } from './useAtom';
 import { StoreProvider } from '../store/StoreProvider';
 import * as useIsomorphicLayoutEffectObject from '../../utils/useIsomorphicLayoutEffect';
 import { useIsomorphicLayoutEffect } from '../../utils/useIsomorphicLayoutEffect';
-import { useAtomDispatch } from './useAtomDispatch';
+import { useAtomSetState } from './useAtomSetState';
 import { createStore } from '../store/store';
 
 const expectRenderResult = (
@@ -68,13 +68,6 @@ describe('useAtom', () => {
   });
 
   describe('Initial state from store', () => {
-    type StoreValue = {
-      user: {
-        name: string;
-        age: number;
-      };
-    };
-
     const initialUser = {
       name: '',
       age: -1,
@@ -93,7 +86,7 @@ describe('useAtom', () => {
       );
     };
 
-    const store = createStore<StoreValue>({
+    const store = createStore({
       initialValue: {
         user: {
           name: 'example',
@@ -113,19 +106,23 @@ describe('useAtom', () => {
     );
   });
 
-  describe('Dispatch', () => {
+  describe('SetState', () => {
     const User = () => {
       const userAtom = createAtom('user', {
         name: '',
         age: -1,
       });
 
-      const [name] = useAtom(userAtom, ({ name }) => name);
-      const [age] = useAtom(userAtom, ({ age }) => age);
-      const dispatch = useAtomDispatch(userAtom);
+      const [name] = useAtom(userAtom, {
+        selector: ({ name }) => name,
+      });
+      const [age] = useAtom(userAtom, {
+        selector: ({ age }) => age,
+      });
+      const setState = useAtomSetState(userAtom);
 
       useIsomorphicLayoutEffect(() => {
-        dispatch({
+        setState({
           name: 'example',
           age: 22,
         });
@@ -147,7 +144,7 @@ describe('useAtom', () => {
       (container) => {
         expect(getByTestId(container, 'name').textContent).toBe('example');
         expect(getByTestId(container, 'age').textContent).toBe('22');
-        expect(store.getValue().user).toEqual({
+        expect(store.getState().user).toEqual({
           name: 'example',
           age: 22,
         });
@@ -164,12 +161,12 @@ describe('useAtom', () => {
 
       const countAtom = createAtom('count', 0);
 
-      const [name] = useAtom(userAtom, ({ name }) => name);
-      const [age] = useAtom(userAtom, ({ age }) => age);
+      const [name] = useAtom(userAtom, { selector: ({ name }) => name });
+      const [age] = useAtom(userAtom, { selector: ({ age }) => age });
       const [count] = useAtom(countAtom);
-      const [nullable] = useAtom(countAtom, () => null);
-      const userDispatch = useAtomDispatch(userAtom);
-      const countDispatch = useAtomDispatch(countAtom);
+      const [nullable] = useAtom(countAtom, { selector: () => null });
+      const userDispatch = useAtomSetState(userAtom);
+      const countDispatch = useAtomSetState(countAtom);
 
       expect(nullable).toBe(null);
 

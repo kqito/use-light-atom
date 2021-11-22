@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { createAtom, useAtomDispatch, useAtomValue } from '../dist';
+import { createAtom, useAtomSetState, useAtomState } from '../dist';
 
 export const userAtom = createAtom('user', {
   id: '',
@@ -7,7 +7,7 @@ export const userAtom = createAtom('user', {
 });
 
 export const UserInfo = () => {
-  const user = useAtomValue(userAtom);
+  const user = useAtomState(userAtom);
 
   return (
     <div>
@@ -18,11 +18,11 @@ export const UserInfo = () => {
 };
 
 export const Form = () => {
-  const dispatch = useAtomDispatch(userAtom);
+  const setState = useAtomSetState(userAtom);
 
   useEffect(() => {
     setTimeout(() => {
-      dispatch(() => {
+      setState(() => {
         return {
           id: 'id',
           name: 'name',
