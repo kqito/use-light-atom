@@ -2,6 +2,7 @@ export { createAtom } from './atom/atom';
 export { useAtom } from './hooks/useAtom';
 export { useAtomState } from './hooks/useAtomState';
 export { useAtomSetState } from './hooks/useAtomSetState';
+export { useStore } from './hooks/useStore';
 export { createStore } from './store/store';
 export { StoreProvider } from './store/StoreProvider';
 

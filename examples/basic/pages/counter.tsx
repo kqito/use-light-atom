@@ -1,6 +1,5 @@
 import type { NextPage } from 'next';
 import Link from 'next/link';
-import Head from 'next/head';
 import styles from '../styles/Home.module.css';
 import {
   AsyncCounterButton,
@@ -10,16 +9,10 @@ import {
   ResetCounterButton,
   SelectorTest,
 } from '../components/Counter';
-import { StoreInfo } from '../components/StoreInfo';
 
 const CounterPage: NextPage = () => {
   return (
     <div className={styles.container}>
-      <Head>
-        <title>Basic Example</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-
       <main className={styles.main}>
         <h1 className={styles.title}>
           <Link href="/">
@@ -28,7 +21,6 @@ const CounterPage: NextPage = () => {
         </h1>
 
         <FirstIncrement />
-        <StoreInfo />
         <Counter />
         <SelectorTest />
         <CounterButton />

@@ -178,6 +178,14 @@ const store = createStore({ initialValue: Record<string, unknown> })
 - `store.getState` (type:  `Record<string, unknown>`)
   - Function to get the state stored in the store.
 
+### `useStore` hooks
+
+```tsx
+const store = useStore()
+```
+
+`useStore` is a hooks that get store in StoreProvider.
+
 ## Examples
 The following are some example of how to use `use-simple-atom`.
 
