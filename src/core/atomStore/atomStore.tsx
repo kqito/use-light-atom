@@ -7,7 +7,7 @@ export type StoreOptions = {
   initialValue?: Record<string, unknown>;
 };
 
-export type IStore = {
+export type IAtomStore = {
   getAtomState: <T = unknown>(key: string) => T;
   getState: () => Record<string, unknown>;
   addAtom: <T>(atom: Atom<T>) => void;
@@ -16,7 +16,7 @@ export type IStore = {
   dispatch: (key: string, state: unknown) => void;
 };
 
-class Store implements IStore {
+class AtomStore implements IAtomStore {
   private atoms: Map<string, unknown>;
   private listeners: Array<(key: string, state: unknown) => void>;
 
@@ -75,7 +75,7 @@ class Store implements IStore {
   }
 }
 
-export const createStore = (storeOptions: StoreOptions = {}) =>
-  new Store(storeOptions);
+export const createAtomStore = (storeOptions: StoreOptions = {}) =>
+  new AtomStore(storeOptions);
 
-export const StoreContext = createContext<IStore>(createStore());
+export const AtomStoreContext = createContext<IAtomStore>(createAtomStore());

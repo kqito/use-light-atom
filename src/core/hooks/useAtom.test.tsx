@@ -4,11 +4,11 @@ import { getByTestId } from '@testing-library/dom';
 import { render, cleanup } from '@testing-library/react';
 import { createAtom } from '../atom/atom';
 import { useAtom } from './useAtom';
-import { StoreProvider } from '../store/StoreProvider';
+import { AtomStoreProvider } from '../atomStore/AtomStoreProvider';
 import * as useIsomorphicLayoutEffectObject from '../../utils/useIsomorphicLayoutEffect';
 import { useIsomorphicLayoutEffect } from '../../utils/useIsomorphicLayoutEffect';
 import { useAtomSetState } from './useAtomSetState';
-import { createStore } from '../store/store';
+import { createAtomStore } from '../atomStore/atomStore';
 
 const expectRenderResult = (
   children: ReactElement,
@@ -57,9 +57,9 @@ describe('useAtom', () => {
     };
 
     expectRenderResult(
-      <StoreProvider>
+      <AtomStoreProvider>
         <User />
-      </StoreProvider>,
+      </AtomStoreProvider>,
       (container) => {
         expect(getByTestId(container, 'name').textContent).toBe('example');
         expect(getByTestId(container, 'age').textContent).toBe('-1');
@@ -86,7 +86,7 @@ describe('useAtom', () => {
       );
     };
 
-    const store = createStore({
+    const atomStore = createAtomStore({
       initialValue: {
         user: {
           name: 'example',
@@ -96,9 +96,9 @@ describe('useAtom', () => {
     });
 
     expectRenderResult(
-      <StoreProvider store={store}>
+      <AtomStoreProvider atomStore={atomStore}>
         <User />
-      </StoreProvider>,
+      </AtomStoreProvider>,
       (container) => {
         expect(getByTestId(container, 'name').textContent).toBe('example');
         expect(getByTestId(container, 'age').textContent).toBe('22');
@@ -136,11 +136,11 @@ describe('useAtom', () => {
       );
     };
 
-    const store = createStore();
+    const store = createAtomStore();
     expectRenderResult(
-      <StoreProvider store={store}>
+      <AtomStoreProvider atomStore={store}>
         <User />
-      </StoreProvider>,
+      </AtomStoreProvider>,
       (container) => {
         expect(getByTestId(container, 'name').textContent).toBe('example');
         expect(getByTestId(container, 'age').textContent).toBe('22');
@@ -191,9 +191,9 @@ describe('useAtom', () => {
     };
 
     expectRenderResult(
-      <StoreProvider>
+      <AtomStoreProvider>
         <User />
-      </StoreProvider>,
+      </AtomStoreProvider>,
       (container) => {
         expect(getByTestId(container, 'name').textContent).toBe('example');
         expect(getByTestId(container, 'age').textContent).toBe('22');

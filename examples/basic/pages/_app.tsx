@@ -1,6 +1,6 @@
 import Head from 'next/head';
 import type { AppProps } from 'next/app';
-import { StoreProvider, createStore } from '../dist/index';
+import { AtomStoreProvider, createAtomStore } from '../dist/index';
 import '../styles/globals.css';
 import { useRef } from 'react';
 import { StoreInfo } from '../components/StoreInfo';
@@ -8,16 +8,16 @@ import { StoreInfo } from '../components/StoreInfo';
 function MyApp({ Component, pageProps }: AppProps) {
   const { initialValue } = pageProps;
 
-  const storeRef = useRef(
-    createStore({ initialValue: initialValue || undefined })
+  const atomStoreRef = useRef(
+    createAtomStore({ initialValue: initialValue || undefined })
   );
 
   return (
     <>
-      <StoreProvider store={storeRef.current}>
+      <AtomStoreProvider atomStore={atomStoreRef.current}>
         <StoreInfo />
         <Component {...pageProps} />
-      </StoreProvider>
+      </AtomStoreProvider>
       <Head>
         <title>Basic Example</title>
         <link rel="icon" href="/favicon.ico" />

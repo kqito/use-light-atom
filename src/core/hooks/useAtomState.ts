@@ -1,5 +1,5 @@
 import { useContext, useMemo, useRef, useState } from 'react';
-import { Listener, StoreContext } from '../store/store';
+import { Listener, AtomStoreContext } from '../atomStore/atomStore';
 import { Atom } from '../atom/atom';
 import { Selector, useSelectState } from '../../utils/useSelectState';
 import { useIsomorphicLayoutEffect } from '../../utils/useIsomorphicLayoutEffect';
@@ -18,18 +18,18 @@ export const useAtomState: UseAtomState = <T, S>(
   atom: Atom<T>,
   { selector }: UseAtomStateOptions<T, S> = {}
 ) => {
-  const store = useContext(StoreContext);
+  const atomStore = useContext(AtomStoreContext);
   const selectState = useSelectState(selector);
 
   const initialState = useMemo((): S => {
     try {
-      const state = store.getAtomState<T>(atom.key);
+      const state = atomStore.getAtomState<T>(atom.key);
       return selectState(state);
     } catch {
-      store.addAtom(atom);
+      atomStore.addAtom(atom);
       return selectState(atom.value);
     }
-  }, [atom, selectState, store]);
+  }, [atom, selectState, atomStore]);
 
   const [state, setState] = useState<S>(initialState);
   const prevStateRef = useRef<S>(initialState);
@@ -57,12 +57,12 @@ export const useAtomState: UseAtomState = <T, S>(
       }
     };
 
-    store.subscribe(listener);
+    atomStore.subscribe(listener);
 
     return () => {
-      store.unsubscribe(listener);
+      atomStore.unsubscribe(listener);
     };
-  }, [atom.key, selectState, store]);
+  }, [atom.key, selectState, atomStore]);
 
   return state;
 };

@@ -13,7 +13,8 @@
 </p>
 
 ## Features
-- A simple atom library ( less than 5kB size )
+- A simple atom library
+- Lightweight ( less than 5kB size )
 - No dependencies
 - Support for SSR
 - Prevents the unnecessary renders
@@ -35,32 +36,32 @@ yarn add use-simple-atom
 We can use `use-simple-atom` as following.
 
 ```tsx
-import { StoreProvider, useAtom } from 'use-simple-atom'
+import { AtomStoreProvider, useAtom, createAtom } from 'use-simple-atom'
 
 export const counterAtom = createAtom('counter', {
   count: 0
 });
 
 export const Counter = () => {
-  const [{ count }, dispatch] = useAtom(counterAtom);
+  const [{ count }, setState] = useAtom(counterAtom);
 
   return (
     <div>
       <p>Counter: {count}</p>
-        <button onClick={() => dispatch({ count: count + 1 })}>
-          Increment
-        </button>
-        <button onClick={() => dispatch({ count: count - 1 })}>
-          Decrement
-        </button>
+      <button onClick={() => setState(({ count }) => { count: count + 1 })}>
+        Increment
+      </button>
+      <button onClick={() => setState(({ count }) => { count: count - 1 })}>
+        Decrement
+      </button>
     </div>
   );
 };
 
 const App = () => (
-  <StoreProvider>
+  <AtomStoreProvider>
     <Counter />
-  </StoreProvider>
+  </AtomStoreProvider>
 )
 ```
 
@@ -87,6 +88,7 @@ const [state, setState] = useAtom(atom, { selector });
 - `setState` (type: `(newState: ((state: T) => T) | T) => void`)
   - Function to update the state.
 
+---
 
 ### `useAtomState` hooks
 
@@ -107,6 +109,7 @@ const state = useAtomState(atom, useAtomStateOptions);
 - `state` (type: `T`)
   - State of the atom specified in the argument.
 
+---
 
 ### `useAtomSetState` hooks
 
@@ -124,6 +127,7 @@ const setState = useAtomState(atom);
 - `setState` (type: `(newState: ((state: T) => T) | T) => void`)
   - Function to update the state.
 
+---
 
 ### `createAtom` function
 
@@ -144,72 +148,76 @@ const atom = createAtom(key, value);
 - `atom` (type: `Atom<T>`)
   - Atom available for useAtom hooks, etc.
 
+---
 
-### `StoreProvider` component
+### `AtomStoreProvider` component
 
 ```tsx
- <StoreProvider store={store}>
+ <AtomStoreProvider atomStore={atomStore}>
   { children here... }
- </StoreProvider>
+ </AtomStoreProvider>
 ```
 
-`StoreProvider` is a component for managing atom.
+`AtomStoreProvider` is a component for managing atom.
 
-** In order to use the useAtom hooks, you need to set the StoreProvider on the parent or higher element. **
+** In order to use the useAtom hooks, you need to set the `AtomStoreProvider` on the parent or higher element. **
 
 ### Props
-- `store` (type: `Store | undefined`)
-  - props to set the store created by the createStore function to Provider
+- `atomStore` (type: `AtomStore | undefined`)
+  - props to set the store created by the `createAtomStore` function to Provider
 
+---
 
-### `createStore` function
+### `createAtomStore` function
 
 ```tsx
-const store = createStore({ initialValue: Record<string, unknown> })
+const atomStore = createAtomStore({ initialValue: Record<string, unknown> })
 ```
 
-`createStore` is a function that creates a store. It is mainly used for SSR.
+`createAtomStore` is a function that creates a store. It is mainly used for SSR.
 
 ### Arguments
 - `initialValue` (type: `Record<string, unknown> | undefined`)
   - Initial value of state. For example, it can be used to assign the result of SSR as the initial value.
 
-### Store
-- `store.getState` (type:  `Record<string, unknown>`)
+### AtomStore
+- `AtomStore.getState` (type:  `Record<string, unknown>`)
   - Function to get the state stored in the store.
 
-### `useStore` hooks
+---
+
+### `useAtomStore` hooks
 
 ```tsx
-const store = useStore()
+const atomStore = useAtomStore()
 ```
 
-`useStore` is a hooks that get store in StoreProvider.
+`useAtomStore` is a hooks that get store in `AtomStoreProvider`.
 
 ## Examples
 The following are some example of how to use `use-simple-atom`.
 
-Note that the `StoreProvider` must be specified as the parent or higher element.
+Note that the `AtomStoreProvider` must be specified as the parent or higher element.
 
 ### Basic
 
 ```tsx
-import { useAtom } from 'use-simple-atom'
+import { useAtom, createAtom } from 'use-simple-atom'
 
 export const counterAtom = createAtom('counter', {
   count: 0
 });
 
 export const Counter = () => {
-  const [{ count }, dispatch] = useAtom(counterAtom);
+  const [{ count }, setState] = useAtom(counterAtom);
 
   return (
     <div>
       <p>Counter: {count}</p>
-        <button onClick={() => dispatch({ count: count + 1 })}>
+        <button onClick={() => setState({ count: count + 1 })}>
           Increment
         </button>
-        <button onClick={() => dispatch({ count: count - 1 })}>
+        <button onClick={() => setState({ count: count - 1 })}>
           Decrement
         </button>
     </div>
@@ -220,18 +228,24 @@ export const Counter = () => {
 ### Read only state of atom
 
 ```tsx
-import { useAtomState } from 'use-simple-atom'
+import { useAtomState, createAtom } from 'use-simple-atom'
 
 export const counterAtom = createAtom('counter', {
   count: 0
 });
 
+export const userAtom = createAtom('user', {
+  age: 22
+});
+
 export const Counter = () => {
   const { count } = useAtomState(counterAtom);
+  const age = useAtomState(userAtom, { selector: ({ age }) => age });
 
   return (
     <div>
       <p>Counter: {count}</p>
+      <p>Age: {age}</p>
     </div>
   );
 };
@@ -240,23 +254,23 @@ export const Counter = () => {
 ### Get only setState of atom
 
 ```tsx
-import { useAtomSetState } from 'use-simple-atom'
+import { useAtomSetState, createAtom } from 'use-simple-atom'
 
 export const counterAtom = createAtom('counter', {
   count: 0
 });
 
 export const Counter = () => {
-  const dispatch = useAtomSetState(counterAtom);
+  const setState = useAtomSetState(counterAtom);
 
   return (
     <div>
-        <button onClick={() => dispatch({ count: count + 1 })}>
-          Increment
-        </button>
-        <button onClick={() => dispatch({ count: count - 1 })}>
-          Decrement
-        </button>
+      <button onClick={() => setState(({ count }) => { count: count + 1 })}>
+        Increment
+      </button>
+      <button onClick={() => setState(({ count }) => { count: count - 1 })}>
+        Decrement
+      </button>
     </div>
   );
 };
