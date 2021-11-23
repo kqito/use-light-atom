@@ -86,13 +86,15 @@ describe('useAtom', () => {
       );
     };
 
-    const atomStore = createAtomStore({
-      initialValue: {
-        user: {
-          name: 'example',
-          age: 22,
-        },
+    const initialData = {
+      user: {
+        name: 'example',
+        age: 22,
       },
+    };
+
+    const atomStore = createAtomStore({
+      initialAtoms: Object.entries(),
     });
 
     expectRenderResult(
@@ -144,7 +146,7 @@ describe('useAtom', () => {
       (container) => {
         expect(getByTestId(container, 'name').textContent).toBe('example');
         expect(getByTestId(container, 'age').textContent).toBe('22');
-        expect(store.getState().user).toEqual({
+        expect(store.getAtoms().user).toEqual({
           name: 'example',
           age: 22,
         });

@@ -22,26 +22,26 @@ export const useAtomState: UseAtomState = <T, S>(
   const selectState = useSelectState(selector);
 
   const initialState = useMemo((): S => {
-    try {
-      const state = atomStore.getAtomState<T>(atom.key);
-      return selectState(state);
-    } catch {
-      atomStore.addAtom(atom);
+    const storedAtom = atomStore.getAtom(atom.key);
+    if (storedAtom === undefined) {
+      atomStore.setAtom(atom);
       return selectState(atom.value);
     }
+
+    return selectState(storedAtom.value as T);
   }, [atom, selectState, atomStore]);
 
   const [state, setState] = useState<S>(initialState);
   const prevStateRef = useRef<S>(initialState);
 
   useIsomorphicLayoutEffect(() => {
-    const listener: Listener = (key, state) => {
+    const listener: Listener = (nextAtom) => {
       try {
-        if (atom.key !== key) {
+        if (atom.key !== nextAtom.key) {
           return;
         }
 
-        const newState = selectState(state as T);
+        const newState = selectState(nextAtom.value as T);
         if (prevStateRef.current === newState) {
           return;
         }

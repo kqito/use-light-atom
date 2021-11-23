@@ -1,54 +1,54 @@
 import { createContext } from 'react';
-import { Atom } from '../atom/atom';
+import { Atom, createValueAtom } from '../atom/atom';
 
-export type Listener = (key: string, state: unknown) => void;
+export type Listener = (atom: Atom<unknown>) => void;
 
-export type StoreOptions = {
-  initialValue?: Record<string, unknown>;
-};
-
-export type IAtomStore = {
-  getAtomState: <T = unknown>(key: string) => T;
-  getState: () => Record<string, unknown>;
-  addAtom: <T>(atom: Atom<T>) => void;
+export interface IAtomStore {
+  getAtoms: () => Record<string, Atom<unknown>>;
+  setAtomValues: (values: Record<string, unknown>) => void;
+  setAtom: <T>(atom: Atom<T>) => void;
+  getAtom: (key: string) => Atom<unknown> | undefined;
   subscribe: (listener: Listener) => void;
   unsubscribe: (listener: Listener) => void;
-  dispatch: (key: string, state: unknown) => void;
-};
+}
 
 class AtomStore implements IAtomStore {
-  private atoms: Map<string, unknown>;
-  private listeners: Array<(key: string, state: unknown) => void>;
+  private atoms: Map<string, Atom<unknown>>;
+  private listeners: Array<(atom: Atom<unknown>) => void>;
 
-  constructor({ initialValue }: StoreOptions = {}) {
-    // Set initial value
-    const atoms = new Map();
-    for (const [key, value] of Object.entries(initialValue || {})) {
-      atoms.set(key, value);
-    }
-
-    this.atoms = atoms;
+  constructor() {
+    this.atoms = new Map();
     this.listeners = [];
   }
 
-  getAtomState<T = unknown>(key: string) {
-    if (!this.atoms.has(key)) {
-      throw new Error(`Undefined atom: ${key}`);
-    }
-
-    return this.atoms.get(key) as T;
-  }
-
-  getState(): Record<string, unknown> {
+  getAtoms(): Record<string, Atom<unknown>> {
     return Object.fromEntries(this.atoms);
   }
 
-  addAtom<T>(atom: Atom<T>) {
-    if (this.atoms.has(atom.key)) {
-      return;
-    }
+  setAtomValues(values: Record<string, unknown>) {
+    for (const [key, value] of Object.entries(values)) {
+      const targetAtom = this.getAtom(key);
 
-    this.atoms.set(atom.key, atom.value);
+      if (targetAtom === undefined) {
+        this.setAtom(createValueAtom(key, value));
+        continue;
+      }
+
+      this.setAtom({
+        ...targetAtom,
+        value,
+        hasInitialized: true,
+      });
+    }
+  }
+
+  getAtom(key: string) {
+    return this.atoms.get(key);
+  }
+
+  setAtom<T>(atom: Atom<T>) {
+    this.atoms.set(atom.key, atom);
+    this.dispatch(atom);
   }
 
   subscribe(listener: Listener) {
@@ -63,19 +63,13 @@ class AtomStore implements IAtomStore {
     }
   }
 
-  dispatch(key: string, state: unknown) {
-    if (!this.atoms.has(key)) {
-      throw new Error(`Undefined atom: ${key}`);
-    }
-
-    this.atoms.set(key, state);
+  private dispatch(atom: Atom<unknown>) {
     for (const listener of this.listeners) {
-      listener(key, state);
+      listener(atom);
     }
   }
 }
 
-export const createAtomStore = (storeOptions: StoreOptions = {}) =>
-  new AtomStore(storeOptions);
+export const createAtomStore = () => new AtomStore();
 
 export const AtomStoreContext = createContext<IAtomStore>(createAtomStore());
