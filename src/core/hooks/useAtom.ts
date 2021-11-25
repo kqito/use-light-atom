@@ -6,7 +6,7 @@ export type UseAtomOptions<T, S> = UseAtomStateOptions<T, S>;
 
 export type UseAtom = {
   <T, S = T>(atom: Atom<T>): [S, SetState<T>];
-  <T, S>(atom: Atom<T>, useAtomOptions?: UseAtomOptions<T, S>): [
+  <T, S = T>(atom: Atom<T>, useAtomOptions?: UseAtomOptions<T, S>): [
     S,
     SetState<T>
   ];

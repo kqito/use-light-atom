@@ -5,7 +5,7 @@ export type Listener = (atom: Atom<unknown>) => void;
 
 export interface IAtomStore {
   getAtoms: () => Record<string, Atom<unknown>>;
-  setAtomValue: <T, S>(
+  setPreloadValue: <T, S>(
     key: string,
     value: (prevValue: T | undefined) => S
   ) => void;
@@ -30,7 +30,7 @@ class AtomStore implements IAtomStore {
     return Object.fromEntries(this.atoms);
   }
 
-  setAtomValue<T, S>(key: string, value: (prevValue: T | undefined) => S) {
+  setPreloadValue<T, S>(key: string, value: (prevValue: T | undefined) => S) {
     const targetAtom = this.getAtom(key);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     this.preloadValues.set(key, value as any);

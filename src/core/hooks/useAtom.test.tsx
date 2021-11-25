@@ -68,6 +68,102 @@ describe('useAtom', () => {
     );
   });
 
+  describe('SetState', () => {
+    const userAtom = createAtom('user', {
+      name: '',
+      age: -1,
+    });
+
+    describe('Dispath with literal', () => {
+      const User = () => {
+        const [name] = useAtom(userAtom, {
+          selector: ({ name }) => name,
+        });
+        const [age] = useAtom(userAtom, {
+          selector: ({ age }) => age,
+        });
+        const setState = useAtomSetState(userAtom);
+
+        useIsomorphicLayoutEffect(() => {
+          setState({
+            name: 'example',
+            age: 22,
+          });
+        }, []);
+
+        return (
+          <div>
+            <p data-testid="name">{name}</p>
+            <p data-testid="age">{age}</p>
+          </div>
+        );
+      };
+
+      const store = createAtomStore();
+      expectRenderResult(
+        <AtomStoreProvider atomStore={store}>
+          <User />
+        </AtomStoreProvider>,
+        (container) => {
+          expect(getByTestId(container, 'name').textContent).toBe('example');
+          expect(getByTestId(container, 'age').textContent).toBe('22');
+          expect(store.getAtoms().user).toEqual({
+            ...userAtom,
+            value: {
+              name: 'example',
+              age: 22,
+            },
+          });
+        }
+      );
+    });
+
+    describe('Dispath with function', () => {
+      const User = () => {
+        const [name] = useAtom(userAtom, {
+          selector: ({ name }) => name,
+        });
+        const [age] = useAtom(userAtom, {
+          selector: ({ age }) => age,
+        });
+        const setState = useAtomSetState(userAtom);
+
+        useIsomorphicLayoutEffect(() => {
+          setState((prev) => ({
+            ...prev,
+            name: 'example',
+            age: 22,
+          }));
+        }, []);
+
+        return (
+          <div>
+            <p data-testid="name">{name}</p>
+            <p data-testid="age">{age}</p>
+          </div>
+        );
+      };
+
+      const store = createAtomStore();
+      expectRenderResult(
+        <AtomStoreProvider atomStore={store}>
+          <User />
+        </AtomStoreProvider>,
+        (container) => {
+          expect(getByTestId(container, 'name').textContent).toBe('example');
+          expect(getByTestId(container, 'age').textContent).toBe('22');
+          expect(store.getAtoms().user).toEqual({
+            ...userAtom,
+            value: {
+              name: 'example',
+              age: 22,
+            },
+          });
+        }
+      );
+    });
+  });
+
   describe('Initial state from store', () => {
     const userAtom = createAtom('user', {
       name: '',
@@ -86,7 +182,7 @@ describe('useAtom', () => {
     };
 
     const atomStore = createAtomStore();
-    atomStore.setAtomValue(userAtom.key, () => ({
+    atomStore.setPreloadValue(userAtom.key, () => ({
       name: 'example',
       age: 22,
     }));
@@ -98,55 +194,6 @@ describe('useAtom', () => {
       (container) => {
         expect(getByTestId(container, 'name').textContent).toBe('example');
         expect(getByTestId(container, 'age').textContent).toBe('22');
-      }
-    );
-  });
-
-  describe('SetState', () => {
-    const userAtom = createAtom('user', {
-      name: '',
-      age: -1,
-    });
-
-    const User = () => {
-      const [name] = useAtom(userAtom, {
-        selector: ({ name }) => name,
-      });
-      const [age] = useAtom(userAtom, {
-        selector: ({ age }) => age,
-      });
-      const setState = useAtomSetState(userAtom);
-
-      useIsomorphicLayoutEffect(() => {
-        setState({
-          name: 'example',
-          age: 22,
-        });
-      }, []);
-
-      return (
-        <div>
-          <p data-testid="name">{name}</p>
-          <p data-testid="age">{age}</p>
-        </div>
-      );
-    };
-
-    const store = createAtomStore();
-    expectRenderResult(
-      <AtomStoreProvider atomStore={store}>
-        <User />
-      </AtomStoreProvider>,
-      (container) => {
-        expect(getByTestId(container, 'name').textContent).toBe('example');
-        expect(getByTestId(container, 'age').textContent).toBe('22');
-        expect(store.getAtoms().user).toEqual({
-          ...userAtom,
-          value: {
-            name: 'example',
-            age: 22,
-          },
-        });
       }
     );
   });
@@ -214,8 +261,15 @@ describe('useAtom', () => {
         }
       );
 
+      const dateAtom = createAtom('date', {
+        month: -1,
+        date: -1,
+      });
+
       const [{ name, age }] = useAtom(userAtom);
+      const [{ month, date }] = useAtom(dateAtom, { equalFn: deepEqual });
       const userDispatch = useAtomSetState(userAtom);
+      const dateDispatch = useAtomSetState(dateAtom);
 
       useIsomorphicLayoutEffect(() => {
         userDispatch({
@@ -224,10 +278,19 @@ describe('useAtom', () => {
         });
       }, [userDispatch]);
 
+      useIsomorphicLayoutEffect(() => {
+        dateDispatch(() => ({
+          month: 12,
+          date: 1,
+        }));
+      }, [userDispatch]);
+
       return (
         <div>
           <p data-testid="name">{name}</p>
           <p data-testid="age">{age}</p>
+          <p data-testid="month">{month}</p>
+          <p data-testid="date">{date}</p>
         </div>
       );
     };
@@ -239,6 +302,8 @@ describe('useAtom', () => {
       (container) => {
         expect(getByTestId(container, 'name').textContent).toBe('example');
         expect(getByTestId(container, 'age').textContent).toBe('22');
+        expect(getByTestId(container, 'month').textContent).toBe('12');
+        expect(getByTestId(container, 'date').textContent).toBe('1');
       }
     );
   });
