@@ -3,8 +3,7 @@ export type EqualFn = (a: any, b: any) => boolean;
 export type Atom<T> = {
   key: string;
   value: T;
-  equalFn?: EqualFn;
-  hasInitialized: boolean;
+  equalFn: EqualFn;
 };
 
 export type CreateAtomOptions = {
@@ -15,19 +14,14 @@ export type CreateAtom = {
   <T>(key: string, value: T, createAtomOptions?: CreateAtomOptions): Atom<T>;
 };
 
-export const createAtom: CreateAtom = (key, value, { equalFn } = {}) => {
+export const createAtom: CreateAtom = (
+  key,
+  value,
+  { equalFn = Object.is } = {}
+) => {
   return {
     key,
     value,
     equalFn,
-    hasInitialized: true,
-  };
-};
-
-export const createValueAtom: CreateAtom = (key, value) => {
-  return {
-    key,
-    value,
-    hasInitialized: false,
   };
 };

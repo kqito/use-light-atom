@@ -9,6 +9,7 @@ import * as useIsomorphicLayoutEffectObject from '../../utils/useIsomorphicLayou
 import { useIsomorphicLayoutEffect } from '../../utils/useIsomorphicLayoutEffect';
 import { useAtomSetState } from './useAtomSetState';
 import { createAtomStore } from '../atomStore/atomStore';
+import deepEqual from 'fast-deep-equal';
 
 const expectRenderResult = (
   children: ReactElement,
@@ -68,14 +69,12 @@ describe('useAtom', () => {
   });
 
   describe('Initial state from store', () => {
-    const initialUser = {
+    const userAtom = createAtom('user', {
       name: '',
       age: -1,
-    };
+    });
 
     const User = () => {
-      const userAtom = createAtom('user', initialUser);
-
       const [user] = useAtom(userAtom);
 
       return (
@@ -86,16 +85,11 @@ describe('useAtom', () => {
       );
     };
 
-    const initialData = {
-      user: {
-        name: 'example',
-        age: 22,
-      },
-    };
-
-    const atomStore = createAtomStore({
-      initialAtoms: Object.entries(),
-    });
+    const atomStore = createAtomStore();
+    atomStore.setAtomValue(userAtom.key, () => ({
+      name: 'example',
+      age: 22,
+    }));
 
     expectRenderResult(
       <AtomStoreProvider atomStore={atomStore}>
@@ -109,12 +103,12 @@ describe('useAtom', () => {
   });
 
   describe('SetState', () => {
-    const User = () => {
-      const userAtom = createAtom('user', {
-        name: '',
-        age: -1,
-      });
+    const userAtom = createAtom('user', {
+      name: '',
+      age: -1,
+    });
 
+    const User = () => {
       const [name] = useAtom(userAtom, {
         selector: ({ name }) => name,
       });
@@ -147,8 +141,11 @@ describe('useAtom', () => {
         expect(getByTestId(container, 'name').textContent).toBe('example');
         expect(getByTestId(container, 'age').textContent).toBe('22');
         expect(store.getAtoms().user).toEqual({
-          name: 'example',
-          age: 22,
+          ...userAtom,
+          value: {
+            name: 'example',
+            age: 22,
+          },
         });
       }
     );
@@ -200,6 +197,48 @@ describe('useAtom', () => {
         expect(getByTestId(container, 'name').textContent).toBe('example');
         expect(getByTestId(container, 'age').textContent).toBe('22');
         expect(getByTestId(container, 'count').textContent).toBe('10');
+      }
+    );
+  });
+
+  describe('With deep equal', () => {
+    const User = () => {
+      const userAtom = createAtom(
+        'user',
+        {
+          name: '',
+          age: -1,
+        },
+        {
+          equalFn: deepEqual,
+        }
+      );
+
+      const [{ name, age }] = useAtom(userAtom);
+      const userDispatch = useAtomSetState(userAtom);
+
+      useIsomorphicLayoutEffect(() => {
+        userDispatch({
+          name: 'example',
+          age: 22,
+        });
+      }, [userDispatch]);
+
+      return (
+        <div>
+          <p data-testid="name">{name}</p>
+          <p data-testid="age">{age}</p>
+        </div>
+      );
+    };
+
+    expectRenderResult(
+      <AtomStoreProvider>
+        <User />
+      </AtomStoreProvider>,
+      (container) => {
+        expect(getByTestId(container, 'name').textContent).toBe('example');
+        expect(getByTestId(container, 'age').textContent).toBe('22');
       }
     );
   });

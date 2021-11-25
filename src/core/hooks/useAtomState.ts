@@ -1,6 +1,6 @@
 import { useContext, useMemo, useRef, useState } from 'react';
 import { Listener, AtomStoreContext } from '../atomStore/atomStore';
-import { Atom } from '../atom/atom';
+import { Atom, EqualFn } from '../atom/atom';
 import { Selector, useSelectState } from '../../utils/useSelectState';
 import { useIsomorphicLayoutEffect } from '../../utils/useIsomorphicLayoutEffect';
 import { isProduction } from '../../utils/isProduction';
@@ -21,18 +21,18 @@ export const useAtomState: UseAtomState = <T, S>(
   const atomStore = useContext(AtomStoreContext);
   const selectState = useSelectState(selector);
 
-  const initialState = useMemo((): S => {
-    const storedAtom = atomStore.getAtom(atom.key);
+  const initialAtom = useMemo((): Atom<T> => {
+    const storedAtom = atomStore.getAtom<T>(atom.key);
     if (storedAtom === undefined) {
-      atomStore.setAtom(atom);
-      return selectState(atom.value);
+      return atomStore.setAtom(atom);
     }
 
-    return selectState(storedAtom.value as T);
-  }, [atom, selectState, atomStore]);
+    return storedAtom;
+  }, [atom, atomStore]);
 
-  const [state, setState] = useState<S>(initialState);
-  const prevStateRef = useRef<S>(initialState);
+  const [state, setState] = useState<S>(selectState(initialAtom.value));
+  const prevStateRef = useRef<S>(selectState(initialAtom.value));
+  const equalFnRef = useRef<EqualFn>(initialAtom.equalFn);
 
   useIsomorphicLayoutEffect(() => {
     const listener: Listener = (nextAtom) => {
@@ -42,7 +42,8 @@ export const useAtomState: UseAtomState = <T, S>(
         }
 
         const newState = selectState(nextAtom.value as T);
-        if (prevStateRef.current === newState) {
+        equalFnRef.current = nextAtom.equalFn;
+        if (equalFnRef.current(prevStateRef.current, newState)) {
           return;
         }
 

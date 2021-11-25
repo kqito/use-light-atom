@@ -1,23 +1,28 @@
 import { createContext } from 'react';
-import { Atom, createValueAtom } from '../atom/atom';
+import { Atom } from '../atom/atom';
 
 export type Listener = (atom: Atom<unknown>) => void;
 
 export interface IAtomStore {
   getAtoms: () => Record<string, Atom<unknown>>;
-  setAtomValues: (values: Record<string, unknown>) => void;
-  setAtom: <T>(atom: Atom<T>) => void;
-  getAtom: (key: string) => Atom<unknown> | undefined;
+  setAtomValue: <T, S>(
+    key: string,
+    value: (prevValue: T | undefined) => S
+  ) => void;
+  setAtom: <T>(atom: Atom<T>) => Atom<T>;
+  getAtom: <T = unknown>(key: string) => Atom<T> | undefined;
   subscribe: (listener: Listener) => void;
   unsubscribe: (listener: Listener) => void;
 }
 
 class AtomStore implements IAtomStore {
   private atoms: Map<string, Atom<unknown>>;
+  private preloadValues: Map<string, <T, S>(prevValue: T | undefined) => S>;
   private listeners: Array<(atom: Atom<unknown>) => void>;
 
   constructor() {
     this.atoms = new Map();
+    this.preloadValues = new Map();
     this.listeners = [];
   }
 
@@ -25,30 +30,35 @@ class AtomStore implements IAtomStore {
     return Object.fromEntries(this.atoms);
   }
 
-  setAtomValues(values: Record<string, unknown>) {
-    for (const [key, value] of Object.entries(values)) {
-      const targetAtom = this.getAtom(key);
+  setAtomValue<T, S>(key: string, value: (prevValue: T | undefined) => S) {
+    const targetAtom = this.getAtom(key);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    this.preloadValues.set(key, value as any);
 
-      if (targetAtom === undefined) {
-        this.setAtom(createValueAtom(key, value));
-        continue;
-      }
-
-      this.setAtom({
-        ...targetAtom,
-        value,
-        hasInitialized: true,
-      });
+    if (targetAtom === undefined) {
+      return;
     }
+
+    this.setAtom(targetAtom);
   }
 
-  getAtom(key: string) {
-    return this.atoms.get(key);
+  getAtom<T>(key: string) {
+    return this.atoms.get(key) as Atom<T> | undefined;
   }
 
-  setAtom<T>(atom: Atom<T>) {
-    this.atoms.set(atom.key, atom);
-    this.dispatch(atom);
+  setAtom<T>(atom: Atom<T>): Atom<T> {
+    const preloadValue = this.preloadValues.get(atom.key);
+    this.preloadValues.delete(atom.key);
+
+    const mergedAtom: Atom<T> = {
+      ...atom,
+      value: preloadValue ? preloadValue(atom.value) : atom.value,
+    };
+
+    this.atoms.set(atom.key, mergedAtom);
+    this.dispatch(mergedAtom);
+
+    return mergedAtom;
   }
 
   subscribe(listener: Listener) {
