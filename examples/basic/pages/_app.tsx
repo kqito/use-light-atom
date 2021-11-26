@@ -8,9 +8,7 @@ import { StoreInfo } from '../components/StoreInfo';
 function MyApp({ Component, pageProps }: AppProps) {
   const { initialValue } = pageProps;
 
-  const atomStoreRef = useRef(
-    createAtomStore({ initialValue: initialValue || undefined })
-  );
+  const atomStoreRef = useRef(createAtomStore());
 
   return (
     <>

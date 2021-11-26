@@ -11,7 +11,7 @@ export const useAtomSetState = <T>(atom: Atom<T>) => {
 
   const setState = useCallback<SetState<T>>(
     (newState) => {
-      const storedAtom = atomStore.getAtom<T>(atom.key);
+      const storedAtom = atomStore.mergeAtom<T>(atom);
 
       if (storedAtom === undefined) {
         if (!isProduction) {

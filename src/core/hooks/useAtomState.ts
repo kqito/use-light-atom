@@ -29,14 +29,10 @@ export const useAtomState: UseAtomState = <T, S>(
     [selectStateRef]
   );
 
-  const initialAtom = useMemo((): Atom<T> => {
-    const storedAtom = atomStore.getAtom<T>(atom.key);
-    if (storedAtom === undefined) {
-      return atomStore.setAtom(atom);
-    }
-
-    return storedAtom;
-  }, [atom, atomStore]);
+  const initialAtom = useMemo(
+    (): Atom<T> => atomStore.mergeAtom<T>(atom),
+    [atom, atomStore]
+  );
 
   const [state, setState] = useState<S>(selectState(initialAtom.value));
   const prevStateRef = useRef<S>(selectState(initialAtom.value));

@@ -9,8 +9,8 @@ export interface IAtomStore {
     key: string,
     value: (prevValue: T | undefined) => S
   ) => void;
-  setAtom: <T>(atom: Atom<T>) => Atom<T>;
-  getAtom: <T = unknown>(key: string) => Atom<T> | undefined;
+  mergeAtom: <T>(atom: Atom<T>) => Atom<T>;
+  setAtom: <T>(atom: Atom<T>) => void;
   subscribe: (listener: Listener) => void;
   unsubscribe: (listener: Listener) => void;
 }
@@ -31,7 +31,7 @@ class AtomStore implements IAtomStore {
   }
 
   setPreloadValue<T, S>(key: string, value: (prevValue: T | undefined) => S) {
-    const targetAtom = this.getAtom(key);
+    const targetAtom = this.atoms.get(key);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     this.preloadValues.set(key, value as any);
 
@@ -39,26 +39,29 @@ class AtomStore implements IAtomStore {
       return;
     }
 
-    this.setAtom(targetAtom);
+    this.mergeAtom(targetAtom);
   }
 
-  getAtom<T>(key: string) {
-    return this.atoms.get(key) as Atom<T> | undefined;
+  mergeAtom<T>(atom: Atom<T>): Atom<T> {
+    let newAtom = (this.atoms.get(atom.key) || atom) as Atom<T>;
+    const preloadValue = this.preloadValues.get(newAtom.key);
+
+    if (preloadValue) {
+      this.preloadValues.delete(newAtom.key);
+      newAtom = {
+        ...newAtom,
+        value: preloadValue(newAtom.value),
+      };
+    }
+
+    this.setAtom(newAtom);
+
+    return newAtom;
   }
 
-  setAtom<T>(atom: Atom<T>): Atom<T> {
-    const preloadValue = this.preloadValues.get(atom.key);
-    this.preloadValues.delete(atom.key);
-
-    const mergedAtom: Atom<T> = {
-      ...atom,
-      value: preloadValue ? preloadValue(atom.value) : atom.value,
-    };
-
-    this.atoms.set(atom.key, mergedAtom);
-    this.dispatch(mergedAtom);
-
-    return mergedAtom;
+  setAtom<T>(atom: Atom<T>): void {
+    this.atoms.set(atom.key, atom);
+    this.dispatch(atom);
   }
 
   subscribe(listener: Listener) {
