@@ -2,13 +2,13 @@ import { createContext } from 'react';
 import { Atom } from '../atom/atom';
 
 export type Listener = (atom: Atom<unknown>) => void;
+export type PreloadValue<T = unknown, S = unknown> = (
+  prevValue: T | undefined
+) => S;
 
 export interface IAtomStore {
   getAtoms: () => Record<string, Atom<unknown>>;
-  setPreloadValue: <T, S>(
-    key: string,
-    value: (prevValue: T | undefined) => S
-  ) => void;
+  setPreloadValue: <T, S>(key: string, value: PreloadValue<T, S>) => void;
   mergeAtom: <T>(atom: Atom<T>) => Atom<T>;
   setAtom: <T>(atom: Atom<T>) => void;
   subscribe: (listener: Listener) => void;

@@ -32,8 +32,8 @@ export default SG1;
 export const getStaticProps: GetStaticProps = () => {
   return {
     props: {
-      initialValue: {
-        counter: 100,
+      preloadValues: {
+        counter: () => 100,
       },
     },
   };

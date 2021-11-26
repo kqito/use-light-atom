@@ -31,10 +31,10 @@ export default SG2;
 export const getStaticProps: GetStaticProps = () => {
   return {
     props: {
-      initialValue: {
-        user: {
+      preloadValues: {
+        user: () => ({
           name: 'getStaticProps',
-        },
+        }),
       },
     },
   };
