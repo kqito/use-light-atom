@@ -1,4 +1,4 @@
-export { createAtom } from './atom/atom';
+export { createAtom, createPreloadAtom } from './atom/atom';
 export { useAtom } from './hooks/useAtom';
 export { useAtomState } from './hooks/useAtomState';
 export { useAtomSetState } from './hooks/useAtomSetState';

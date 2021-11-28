@@ -30,7 +30,7 @@ export const useAtomState: UseAtomState = <T, S>(
   );
 
   const initialAtom = useMemo(
-    (): Atom<T> => atomStore.mergeAtom<T>(atom),
+    (): Atom<T> => atomStore.setAtom<T>(atom),
     [atom, atomStore]
   );
 
@@ -45,7 +45,7 @@ export const useAtomState: UseAtomState = <T, S>(
         }
 
         const newState = selectState(nextAtom.value as T);
-        const targetEqualFn = equalFnRef.current || nextAtom.equalFn;
+        const targetEqualFn = equalFnRef.current || nextAtom.options.equalFn;
         if (targetEqualFn(prevStateRef.current, newState)) {
           return;
         }

@@ -4,14 +4,14 @@ import { Atom } from '../atom/atom';
 import { isProduction } from '../../utils/isProduction';
 import { isCallable } from '../../utils/isCallable';
 
-export type SetState<T> = (newState: ((state: T) => T) | T) => void;
+export type SetState<T> = (setter: ((state: T) => T) | T) => void;
 
 export const useAtomSetState = <T>(atom: Atom<T>) => {
   const atomStore = useContext(AtomStoreContext);
 
   const setState = useCallback<SetState<T>>(
-    (newState) => {
-      const storedAtom = atomStore.mergeAtom<T>(atom);
+    (setter) => {
+      const storedAtom = atomStore.setAtom<T>(atom);
 
       if (storedAtom === undefined) {
         if (!isProduction) {
@@ -21,11 +21,11 @@ export const useAtomSetState = <T>(atom: Atom<T>) => {
         return;
       }
 
-      const nextState: T = isCallable<(state: T) => T>(newState)
-        ? newState(storedAtom.value)
-        : newState;
+      const nextState: T = isCallable<(state: T) => T>(setter)
+        ? setter(storedAtom.value)
+        : setter;
 
-      atomStore.setAtom({
+      atomStore.dispatchAtom({
         ...atom,
         value: nextState,
       });

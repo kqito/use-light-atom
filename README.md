@@ -69,7 +69,7 @@ const App = () => (
 ### `useAtom` hooks
 
 ```tsx
-const [state, setState] = useAtom(atom, { selector });
+const [state, setState] = useAtom(atom, { selector, equalFn });
 ```
 
 `useAtom` is a hooks to get the state of an atom and the function to update it.
@@ -80,6 +80,11 @@ const [state, setState] = useAtom(atom, { selector });
 
 - `selector` (type: `(state: T) => S | undefined`)
    - Function option that allows you to extract only the state you need from the atom.
+
+- `equalFn` (type: `(a: any, b: any) => boolean`)
+  - A function that compares the current value of store with the value of store when it changes.
+  - If the return value is true, re-rendering will occur.
+
 
 ### Returns
 - `state` (type: `T`)
@@ -132,7 +137,7 @@ const setState = useAtomState(atom);
 ### `createAtom` function
 
 ```tsx
-const atom = createAtom(key, value);
+const atom = createAtom(key, value, { equalFn });
 ```
 
 `createAtom` is a function to create atom.
@@ -144,6 +149,25 @@ const atom = createAtom(key, value);
 - `value` (type: `T`)
   - Initial value of atom.
 
+- `equalFn` (type: `(a: any, b: any) => boolean`)
+  - If no equalFn option such as useAtom hooks is specified, this value will be applied.
+  - Default is `Object.is`.
+  - A function that compares the current value of store with the value of store when it changes.
+  - If the return value is true, re-rendering will occur.
+
+### `createPreloadAtom` function
+
+```tsx
+const atom = createPreloadAtom(key, value, { equalFn });
+```
+
+`createPreloadAtom` is a function to create preload atom.
+
+`Preload atom` can be used when you want to use a SSG value as the initial value.
+
+### Arguments
+same as `createAtom`
+
 ### Returns
 - `atom` (type: `Atom<T>`)
   - Atom available for useAtom hooks, etc.
@@ -153,36 +177,36 @@ const atom = createAtom(key, value);
 ### `AtomStoreProvider` component
 
 ```tsx
- <AtomStoreProvider atomStore={atomStore}>
+ <AtomStoreProvider atomStore={atomStore} preloadValues={preloadValues}>
   { children here... }
  </AtomStoreProvider>
 ```
 
 `AtomStoreProvider` is a component for managing atom.
 
-** In order to use the useAtom hooks, you need to set the `AtomStoreProvider` on the parent or higher element. **
+** In order to use the useAtom hooks etc, you need to set the `AtomStoreProvider` on the parent or higher element. **
 
 ### Props
 - `atomStore` (type: `AtomStore | undefined`)
   - props to set the store created by the `createAtomStore` function to Provider
+
+- `preloadValues` (type: `Record<string, unknown> | undefined`)
+  - props used to store key and value as a preload atom.
+  - This is useful for inheriting SSR values.
 
 ---
 
 ### `createAtomStore` function
 
 ```tsx
-const atomStore = createAtomStore({ initialValue: Record<string, unknown> })
+const atomStore = createAtomStore()
 ```
 
 `createAtomStore` is a function that creates a store. It is mainly used for SSR.
 
-### Arguments
-- `initialValue` (type: `Record<string, unknown> | undefined`)
-  - Initial value of state. For example, it can be used to assign the result of SSR as the initial value.
-
 ### AtomStore
-- `AtomStore.getState` (type:  `Record<string, unknown>`)
-  - Function to get the state stored in the store.
+- `AtomStore.getAtoms` (type:  `Record<string, unknown>`)
+  - Function to get the atoms stored in the store.
 
 ---
 
@@ -273,6 +297,91 @@ export const Counter = () => {
       </button>
     </div>
   );
+};
+```
+
+### With deep equal
+
+```tsx
+import { useAtomState, createAtom } from 'use-simple-atom'
+
+export const counterAtom = createAtom('counter',
+  {
+    count: 0
+  },
+  {
+    // we can specify default equalFn
+    equalFn: deepEqual
+  }
+);
+
+export const Counter = () => {
+  // web can speicfy equalFn
+  const countState = useAtomState(counterAtom, { equalFn: deepEqual });
+
+  return (
+    <div>
+      <p>Counter: {countState.count}</p>
+    </div>
+  );
+};
+```
+
+
+### Static Generation with Next.js
+
+Allow _app to pass initial values to the store by doing the following.
+
+```tsx
+import { useRef } from 'react';
+import { StoreProvider, createStore } from 'use-simple-atom';
+
+function MyApp({ Component, pageProps }) {
+  const { preloadValues } = pageProps;
+
+  const storeRef = useRef(
+    createStore()
+  );
+
+  return (
+    <StoreProvider store={storeRef.current} preloadValues={preloadValues}>
+      <Component {...pageProps} />
+    </StoreProvider>
+  );
+}
+
+export default MyApp;
+```
+
+Next, the pages component file you want to SG should look like this
+
+
+```tsx
+import type { GetStaticProps, NextPage } from 'next';
+import { createAtom, useAtomState } from 'use-simple-atom';
+
+const countAtom = createAtom('counter', 0);
+
+const CounterPage: NextPage = () => {
+  const count = useAtomState(countAtom);
+
+  return (
+    <div>
+      <p>Counter: {count}</p>
+    </div>
+  );
+};
+
+export default CounterPage;
+
+export const getStaticProps: GetStaticProps = () => {
+  return {
+    props: {
+      preloadValues: {
+        [countAtom.key]: 100,
+      },
+    },
+  };
 };
 ```
 

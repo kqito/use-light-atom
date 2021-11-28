@@ -1,14 +1,10 @@
 import { FC, useMemo, useRef } from 'react';
-import {
-  createAtomStore,
-  IAtomStore,
-  AtomStoreContext,
-  PreloadValue,
-} from './atomStore';
+import { createPreloadAtom } from '../atom/atom';
+import { createAtomStore, IAtomStore, AtomStoreContext } from './atomStore';
 
 export type AtomStoreProviderProps = Readonly<{
   atomStore?: IAtomStore;
-  preloadValues?: Record<string, PreloadValue>;
+  preloadValues?: Record<string, unknown>;
 }>;
 
 export const AtomStoreProvider: FC<AtomStoreProviderProps> = ({
@@ -24,7 +20,7 @@ export const AtomStoreProvider: FC<AtomStoreProviderProps> = ({
     }
 
     for (const [key, preloadValue] of Object.entries(preloadValues)) {
-      storeRef.current.setPreloadValue(key, preloadValue);
+      storeRef.current.setAtom(createPreloadAtom(key, preloadValue));
     }
   }, [preloadValues]);
 

@@ -1,21 +1,10 @@
-import { useEffect } from 'react';
-import { createAtom, useAtom, useAtomSetState, useAtomState } from '../dist';
+import { createAtom, useAtom, useAtomState } from '../dist';
 
 export const countAtom = createAtom('counter', 0);
 
 export const Counter = () => {
   const [count] = useAtom(countAtom);
-
-  return (
-    <div>
-      <p>Counter: {count}</p>
-    </div>
-  );
-};
-
-export const SelectorTest = () => {
-  const [count] = useAtom(countAtom);
-  const count2 = useAtomState(countAtom, {
+  const countInfo = useAtomState(countAtom, {
     selector:
       count < 10
         ? () => 'count is smaller than 10'
@@ -23,8 +12,9 @@ export const SelectorTest = () => {
   });
 
   return (
-    <div style={{ marginTop: '8px' }}>
-      <div>SelectorTest: {count2}</div>
+    <div>
+      <p>Counter: {count}</p>
+      <p>SelectorTest: {countInfo}</p>
     </div>
   );
 };
@@ -73,15 +63,4 @@ export const ResetCounterButton = () => {
       <button onClick={() => setState(0)}>ResetCounterButton: {count}</button>
     </div>
   );
-};
-
-export const FirstIncrement = () => {
-  const count = useAtomState(countAtom);
-  const setState = useAtomSetState(countAtom);
-
-  useEffect(() => {
-    setState(count <= 0 ? 99 : count * 2);
-  }, []);
-
-  return null;
 };
