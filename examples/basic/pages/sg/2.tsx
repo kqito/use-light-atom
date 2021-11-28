@@ -1,7 +1,7 @@
 import type { GetStaticProps, NextPage } from 'next';
 import Link from 'next/link';
 import styles from '../../styles/Home.module.css';
-import { UserInfo } from '../../components/User';
+import { userAtom, UserInfo } from '../../components/User';
 
 const SG2: NextPage = () => {
   return (
@@ -31,8 +31,8 @@ export default SG2;
 export const getStaticProps: GetStaticProps = () => {
   return {
     props: {
-      initialValue: {
-        user: {
+      preloadValues: {
+        [userAtom.key]: {
           name: 'getStaticProps',
         },
       },

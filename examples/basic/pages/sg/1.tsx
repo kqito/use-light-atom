@@ -1,7 +1,7 @@
 import type { GetStaticProps, NextPage } from 'next';
 import Link from 'next/link';
 import styles from '../../styles/Home.module.css';
-import { Counter, CounterButton } from '../../components/Counter';
+import { countAtom, Counter, CounterButton } from '../../components/Counter';
 
 const SG1: NextPage = () => {
   return (
@@ -32,8 +32,8 @@ export default SG1;
 export const getStaticProps: GetStaticProps = () => {
   return {
     props: {
-      initialValue: {
-        counter: 100,
+      preloadValues: {
+        [countAtom.key]: 100,
       },
     },
   };

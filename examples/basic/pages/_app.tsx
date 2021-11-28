@@ -6,15 +6,16 @@ import { useRef } from 'react';
 import { StoreInfo } from '../components/StoreInfo';
 
 function MyApp({ Component, pageProps }: AppProps) {
-  const { initialValue } = pageProps;
+  const { preloadValues } = pageProps;
 
-  const atomStoreRef = useRef(
-    createAtomStore({ initialValue: initialValue || undefined })
-  );
+  const atomStoreRef = useRef(createAtomStore());
 
   return (
     <>
-      <AtomStoreProvider atomStore={atomStoreRef.current}>
+      <AtomStoreProvider
+        atomStore={atomStoreRef.current}
+        preloadValues={preloadValues}
+      >
         <StoreInfo />
         <Component {...pageProps} />
       </AtomStoreProvider>
