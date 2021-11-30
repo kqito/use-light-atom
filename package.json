@@ -1,6 +1,6 @@
 {
   "name": "use-simple-atom",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "A simple atom-based state management for react",
   "keywords": [
     "react",
@@ -88,6 +88,6 @@
     "typescript": "^4.2.3"
   },
   "peerDependencies": {
-    "react": "^16.8.0 || ^17.0.0"
+    "react": ">=16.8"
   }
 }

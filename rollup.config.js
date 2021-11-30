@@ -14,12 +14,7 @@ const babelConfig = {
 const distDir = 'dist';
 const baseConfig = {
   input: 'src/index.ts',
-  external: [
-    'react',
-    'react-dom',
-    'react/jsx-runtime',
-    ...Object.keys(pkg.peerDependencies),
-  ],
+  external: ['react', 'react-dom', ...Object.keys(pkg.peerDependencies)],
 };
 
 const dtsConfig = {
