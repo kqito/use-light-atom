@@ -23,7 +23,7 @@
 You can install the package from npm.
 
 ```
-npm install use-simple-atom
+npm insttll use-simple-atom
 ```
 
 or
@@ -43,15 +43,15 @@ export const counterAtom = createAtom('counter', {
 });
 
 export const Counter = () => {
-  const [{ count }, setState] = useAtom(counterAtom);
+  const [{ count }, setCountState] = useAtom(counterAtom);
 
   return (
     <div>
       <p>Counter: {count}</p>
-      <button onClick={() => setState(({ count }) => { count: count + 1 })}>
+      <button onClick={() => setCountState(({ count }) => { count: count + 1 })}>
         Increment
       </button>
-      <button onClick={() => setState(({ count }) => { count: count - 1 })}>
+      <button onClick={() => setCountState(({ count }) => { count: count - 1 })}>
         Decrement
       </button>
     </div>
@@ -83,6 +83,7 @@ const [state, setState] = useAtom(atom, { selector, equalFn });
 
 - `equalFn` (type: `(a: any, b: any) => boolean`)
   - A function that compares the current value of store with the value of store when it changes.
+  - If `equalFn` is not specified, the `equalFn` specified in atom will be applied.
   - If the return value is true, re-rendering will occur.
 
 
@@ -232,16 +233,25 @@ export const counterAtom = createAtom('counter', {
   count: 0
 });
 
+export const userAtom = createAtom('userInfomation', {
+  age: 22,
+  name: 'kqito'
+});
+
 export const Counter = () => {
-  const [{ count }, setState] = useAtom(counterAtom);
+  const [{ count }, setCountState] = useAtom(counterAtom);
+  // get only state without setState function
+  const userState = useAtomState(userAtom);
+  // get only setState function without state
+  const setUserState = useAtomSetState(userAtom);
 
   return (
     <div>
       <p>Counter: {count}</p>
-        <button onClick={() => setState({ count: count + 1 })}>
+        <button onClick={() => setCountState({ count: count + 1 })}>
           Increment
         </button>
-        <button onClick={() => setState({ count: count - 1 })}>
+        <button onClick={() => setCountState({ count: count - 1 })}>
           Decrement
         </button>
     </div>
@@ -249,7 +259,7 @@ export const Counter = () => {
 };
 ```
 
-### Read only state of atom
+### Selector
 
 ```tsx
 import { useAtomState, createAtom } from 'use-simple-atom'
@@ -258,43 +268,14 @@ export const counterAtom = createAtom('counter', {
   count: 0
 });
 
-export const userAtom = createAtom('user', {
-  age: 22
-});
-
 export const Counter = () => {
-  const { count } = useAtomState(counterAtom);
-  const age = useAtomState(userAtom, { selector: ({ age }) => age });
+  const count = useAtomState(counterAtom, { selector: ({ count }) => count });
+  // The following code is same as the above
+  // const [ count ] = useState(counterAtom, { selector: ({ count }) => count });
 
   return (
     <div>
       <p>Counter: {count}</p>
-      <p>Age: {age}</p>
-    </div>
-  );
-};
-```
-
-### Get only setState of atom
-
-```tsx
-import { useAtomSetState, createAtom } from 'use-simple-atom'
-
-export const counterAtom = createAtom('counter', {
-  count: 0
-});
-
-export const Counter = () => {
-  const setState = useAtomSetState(counterAtom);
-
-  return (
-    <div>
-      <button onClick={() => setState(({ count }) => { count: count + 1 })}>
-        Increment
-      </button>
-      <button onClick={() => setState(({ count }) => { count: count - 1 })}>
-        Decrement
-      </button>
     </div>
   );
 };
@@ -316,7 +297,7 @@ export const counterAtom = createAtom('counter',
 );
 
 export const Counter = () => {
-  // web can speicfy equalFn
+  // we can speicfy equalFn
   const countState = useAtomState(counterAtom, { equalFn: deepEqual });
 
   return (
