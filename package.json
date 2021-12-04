@@ -1,6 +1,6 @@
 {
   "name": "use-light-atom",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "A simple atom-based state management for react",
   "keywords": [
     "react",
