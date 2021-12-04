@@ -1,16 +1,16 @@
 <h3 align="center">
-  use-simple-atom
+  use-light-atom
 </h3>
 
 <p align="center">
-   A simple atom-based state management for react
+   A lightweight atom-based state management for react
 </p>
 
 <p align="center">
-  <a href="https://github.com/kqito/use-simple-atom/actions/workflows/test.yml"><img src="https://github.com/kqito/use-simple-atom/workflows/Test/badge.svg" alt="Build status"></a>
-  <a href="https://badge.fury.io/js/use-simple-atom"><img src="https://badge.fury.io/js/use-simple-atom.svg" alt="Npm version"></a>
-  <a href="https://github.com/kqito/use-simple-atom/blob/main/LICENSE"><img src="https://img.shields.io/github/license/kqito/use-simple-atom" alt="License"></a>
-  <img src="https://img.shields.io/bundlephobia/minzip/use-simple-atom" alt="Bundle size">
+  <a href="https://github.com/kqito/use-light-atom/actions/workflows/test.yml"><img src="https://github.com/kqito/use-light-atom/workflows/Test/badge.svg" alt="Build status"></a>
+  <a href="https://badge.fury.io/js/use-light-atom"><img src="https://badge.fury.io/js/use-light-atom.svg" alt="Npm version"></a>
+  <a href="https://github.com/kqito/use-light-atom/blob/main/LICENSE"><img src="https://img.shields.io/github/license/kqito/use-light-atom" alt="License"></a>
+  <img src="https://img.shields.io/bundlephobia/minzip/use-light-atom" alt="Bundle size">
 </p>
 
 ## Table of Contents
@@ -31,20 +31,20 @@
 We can install the package from npm.
 
 ```
-npm insttll use-simple-atom
+npm insttll use-light-atom
 ```
 
 or
 
 ```
-yarn add use-simple-atom
+yarn add use-light-atom
 ```
 
 ## Usage
-We can use `use-simple-atom` as following.
+We can use `use-light-atom` as following.
 
 ```tsx
-import { AtomStoreProvider, useAtom, createAtom } from 'use-simple-atom'
+import { AtomStoreProvider, useAtom, createAtom } from 'use-light-atom'
 
 export const counterAtom = createAtom('counter', {
   count: 0
@@ -74,7 +74,7 @@ const App = () => (
 ```
 
 ## Examples
-The following are some example of how to use `use-simple-atom`.
+The following are some example of how to use `use-light-atom`.
 
 Note that the `AtomStoreProvider` must be specified as the parent or higher element.
 
@@ -82,7 +82,7 @@ Note that the `AtomStoreProvider` must be specified as the parent or higher elem
 We can use the state and the function to update it from atom as follows
 
 ```tsx
-import { useAtom, createAtom } from 'use-simple-atom'
+import { useAtom, createAtom } from 'use-light-atom'
 
 export const counterAtom = createAtom('counter', {
   count: 0
@@ -119,7 +119,7 @@ export const Counter = () => {
 If specify `selector`, we can extract only the necessary values from the atom
 
 ```tsx
-import { useAtomState, createAtom } from 'use-simple-atom'
+import { useAtomState, createAtom } from 'use-light-atom'
 
 export const userAtom = createAtom('userInfomation', {
   age: 22,
@@ -143,7 +143,7 @@ export const Counter = () => {
 If you want to change the equal function, you can specify the equalFn option. (default: `Object.is`)
 
 ```tsx
-import { useAtomState, createAtom } from 'use-simple-atom'
+import { useAtomState, createAtom } from 'use-light-atom'
 
 export const counterAtom = createAtom('counter',
   {
@@ -173,7 +173,7 @@ export const Counter = () => {
 Allow _app to pass initial values to the store by doing the following.
 
 ```tsx
-import { StoreProvider } from 'use-simple-atom';
+import { StoreProvider } from 'use-light-atom';
 
 function MyApp({ Component, pageProps }) {
   const { preloadValues } = pageProps;
@@ -193,7 +193,7 @@ Next, the pages component file you want to SG should look like this
 
 ```tsx
 import type { GetStaticProps, NextPage } from 'next';
-import { createAtom, useAtomState } from 'use-simple-atom';
+import { createAtom, useAtomState } from 'use-light-atom';
 
 const countAtom = createAtom('counter', 0);
 
