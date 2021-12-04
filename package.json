@@ -1,6 +1,6 @@
 {
-  "name": "use-simple-atom",
-  "version": "0.0.3",
+  "name": "use-light-atom",
+  "version": "0.0.4",
   "description": "A simple atom-based state management for react",
   "keywords": [
     "react",
@@ -8,13 +8,13 @@
     "hooks",
     "atom"
   ],
-  "homepage": "https://github.com/kqito/use-simple-atom#readme",
+  "homepage": "https://github.com/kqito/use-light-atom#readme",
   "bugs": {
-    "url": "https://github.com/kqito/use-simple-atom/issues"
+    "url": "https://github.com/kqito/use-light-atom/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/kqito/use-simple-atom.git"
+    "url": "git+https://github.com/kqito/use-light-atom.git"
   },
   "license": "MIT",
   "author": "Nakagawa kaito",
