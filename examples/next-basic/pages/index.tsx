@@ -56,7 +56,7 @@ const CounterPage: NextPage = () => {
         <h3>Count App</h3>
 
         <Link href="/count-init">
-          <a>To count app</a>
+          <a>To Reset count page</a>
         </Link>
 
         <Counter />
@@ -78,3 +78,13 @@ const CounterPage: NextPage = () => {
 };
 
 export default CounterPage;
+
+export const getStaticProps: GetStaticProps = () => {
+  return {
+    props: {
+      preloadValues: {
+        [countAtom.key]: 5,
+      },
+    },
+  };
+};

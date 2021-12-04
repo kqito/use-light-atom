@@ -4,7 +4,8 @@ import { Atom } from '../atom/atom';
 import { isProduction } from '../../utils/isProduction';
 import { isCallable } from '../../utils/isCallable';
 
-export type SetState<T> = (setter: ((state: T) => T) | T) => void;
+export type Setter<T> = ((state: T) => T) | T;
+export type SetState<T> = (setter: Setter<T>) => void;
 
 export const useAtomSetState = <T>(atom: Atom<T>) => {
   const atomStore = useContext(AtomStoreContext);

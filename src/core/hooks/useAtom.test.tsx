@@ -1,52 +1,19 @@
-import { ReactElement, useEffect } from 'react';
-import { renderToString } from 'react-dom/server';
 import { getByTestId } from '@testing-library/dom';
-import { render } from '@testing-library/react';
 import { createAtom, createPreloadAtom } from '../atom/atom';
 import { useAtom } from './useAtom';
 import { AtomStoreProvider } from '../atomStore/AtomStoreProvider';
-import * as useIsomorphicLayoutEffectObject from '../../utils/useIsomorphicLayoutEffect';
 import { useIsomorphicLayoutEffect } from '../../utils/useIsomorphicLayoutEffect';
 import { useAtomSetState } from './useAtomSetState';
 import { createAtomStore } from '../atomStore/atomStore';
 import deepEqual from 'fast-deep-equal';
-
-const useIsomorphicLayoutEffectMock = jest.spyOn(
-  useIsomorphicLayoutEffectObject,
-  'useIsomorphicLayoutEffect'
-);
-
-type TestTarget = () => {
-  root: ReactElement;
-  expects: (container: HTMLElement) => void;
-};
-
-const expectRenderResult = (target: TestTarget) => {
-  it('CSR', () => {
-    useIsomorphicLayoutEffectMock.mockImplementation(useEffect);
-    const { root, expects } = target();
-    const { container } = render(root);
-
-    expects(container);
-  });
-
-  it('SSR', () => {
-    useIsomorphicLayoutEffectMock.mockImplementation((effect) => effect());
-
-    const { root, expects } = target();
-    const innerElement = renderToString(root);
-
-    const container = document.createElement('div');
-    container.innerHTML = innerElement;
-
-    expects(container);
-  });
-};
+import {
+  TestTarget,
+  expectRenderResult,
+} from '../../testUtils/expectRenderResult';
 
 describe('useAtom', () => {
   beforeEach(() => {
     jest.resetAllMocks();
-    useIsomorphicLayoutEffectMock.mockClear();
   });
 
   describe('Initial state', () => {

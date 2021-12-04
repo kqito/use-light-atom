@@ -6,11 +6,10 @@ export type Atom<T> = {
   isPreload: boolean;
   options: AtomOptions;
 };
-
+export type AtomValue<T> = T extends Atom<infer U> ? U : never;
 export type AtomOptions = {
   equalFn: EqualFn;
 };
-
 export type CreateAtom = {
   <T>(key: string, value: T, atomOptions?: Partial<AtomOptions>): Atom<T>;
 };
