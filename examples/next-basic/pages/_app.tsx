@@ -3,7 +3,17 @@ import type { AppProps } from 'next/app';
 import { AtomStoreProvider, createAtomStore } from '../dist/index';
 import '../styles/globals.css';
 import { useRef } from 'react';
-import { StoreInfo } from '../components/StoreInfo';
+
+import { useAtom, useAtomStore } from '../dist';
+import { countAtom } from '.';
+
+export const StoreInfo = () => {
+  useAtom(countAtom);
+
+  console.log('Store', useAtomStore());
+
+  return null;
+};
 
 function MyApp({ Component, pageProps }: AppProps) {
   const { preloadValues } = pageProps;
