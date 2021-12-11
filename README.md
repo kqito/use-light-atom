@@ -220,6 +220,39 @@ export const getStaticProps: GetStaticProps = () => {
 };
 ```
 
+Alternatively, you can use the `useMergeAtom` hooks.
+
+
+```tsx
+import type { GetStaticProps, NextPage } from 'next';
+import { createAtom, useAtomState, useMergeAtom } from 'use-light-atom';
+
+const countAtom = createAtom('counter', 0);
+
+const CounterPage: NextPage = ({ preloadValues }) => {
+  useMergeAtom(countAtom, () => preloadValues.counter)
+  const count = useAtomState(countAtom);
+
+  return (
+    <div>
+      <p>Counter: {count}</p>
+    </div>
+  );
+};
+
+export default CounterPage;
+
+export const getStaticProps: GetStaticProps = () => {
+  return {
+    props: {
+      preloadValues: {
+        [countAtom.key]: 100,
+      },
+    },
+  };
+};
+```
+
 ## API
 ### `useAtom` hooks
 
@@ -377,6 +410,24 @@ const atomStore = useAtomStore()
 ```
 
 `useAtomStore` is a hooks that get store in `AtomStoreProvider`.
+---
+
+### `useMergeAtom` hooks
+
+```tsx
+useMergeAtom(atom, mergeFn)
+```
+
+`useMergeAtom` is a hooks that synchronously rewrites the value of atom.
+Whenever the value of the atom argument is updated, the `mergeFn` function will be executed.
+
+#### Arguments
+- `atom` (type: `Atom<T>`)
+  - Atom created by `createAtom` API.
+
+- `mergeFn` (type: `(prevState: T) => T | undefined`)
+  - If it returns `T`, it will apply the update as the value of atom.
+  - If it returns `undefined`, no update will be performed.
 
 ## License
 [MIT © kqito](./LICENSE)
