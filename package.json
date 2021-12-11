@@ -1,6 +1,6 @@
 {
   "name": "use-light-atom",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "A simple atom-based state management for react",
   "keywords": [
     "react",
@@ -55,7 +55,7 @@
     "@storybook/react": "^6.2.9",
     "@testing-library/jest-dom": "^5.11.10",
     "@testing-library/react": "^12.1.2",
-    "@testing-library/react-hooks": "^5.1.1",
+    "@testing-library/react-hooks": "^7.0.2",
     "@types/jest": "^26.0.22",
     "@types/react": "^17.0.3",
     "@types/react-dom": "^17.0.3",

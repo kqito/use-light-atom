@@ -28,6 +28,12 @@ class AtomStore implements IAtomStore {
     const newAtom = atom;
     const storedAtom = this.atoms.get(atom.key) as Atom<T> | undefined;
 
+    // If already stored atom that is not isPreload, return current stored atom.
+    if (storedAtom?.isPreload === false && newAtom.isPreload) {
+      return storedAtom;
+    }
+
+    // If already stored atom that is ot isPreload, then merge atom, return it.
     if (!newAtom.isPreload && storedAtom?.isPreload) {
       newAtom.value = storedAtom.value;
       newAtom.isPreload = false;
