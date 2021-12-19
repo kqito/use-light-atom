@@ -1,8 +1,8 @@
 import { useCallback, useContext } from 'react';
-import { AtomStoreContext } from '../atomStore/atomStore';
 import { Atom } from '../atom/atom';
 import { isProduction } from '../../utils/isProduction';
 import { isCallable } from '../../utils/isCallable';
+import { AtomStoreContext } from '../atomStore/AtomStoreContext';
 
 export type Setter<T> = ((state: T) => T) | T;
 export type SetState<T> = (setter: Setter<T>) => void;

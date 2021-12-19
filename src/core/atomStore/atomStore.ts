@@ -1,6 +1,11 @@
+import { isProduction } from '../../utils/isProduction';
 import { Atom } from '../atom/atom';
 
 export type Listener = (atom: Atom<unknown>) => void;
+
+export type AtomStoreOptions = {
+  isDebugMode?: boolean;
+};
 
 export interface IAtomStore {
   getAtoms: () => Record<string, Atom<unknown>>;
@@ -13,10 +18,12 @@ export interface IAtomStore {
 class AtomStore implements IAtomStore {
   private atoms: Map<string, Atom<unknown>>;
   private listeners: Array<(atom: Atom<unknown>) => void>;
+  private isDebugMode: boolean;
 
-  constructor() {
+  constructor({ isDebugMode }: AtomStoreOptions = {}) {
     this.atoms = new Map();
     this.listeners = [];
+    this.isDebugMode = isDebugMode || false;
   }
 
   getAtoms(): Record<string, Atom<unknown>> {
@@ -28,14 +35,23 @@ class AtomStore implements IAtomStore {
     const storedAtom = this.atoms.get(atom.key) as Atom<T> | undefined;
 
     // If already stored atom that is not isPreload, return current stored atom.
-    if (storedAtom?.isPreload === false && newAtom.isPreload) {
+    if (storedAtom?.meta.isPreload === false && newAtom.meta.isPreload) {
+      if (
+        isProduction &&
+        this.isDebugMode &&
+        storedAtom.meta.initialValue !== storedAtom.meta.initialValue
+      ) {
+        console.warn(
+          `You trying to resgiter same key atom. Please consider ${atom.key}'s atom`
+        );
+      }
       return storedAtom;
     }
 
     // If already stored atom that is ot isPreload, then merge atom, return it.
-    if (!newAtom.isPreload && storedAtom?.isPreload) {
+    if (!newAtom.meta.isPreload && storedAtom?.meta.isPreload) {
       newAtom.value = storedAtom.value;
-      newAtom.isPreload = false;
+      newAtom.meta.isPreload = false;
     }
 
     this.atoms.set(newAtom.key, newAtom);
@@ -75,4 +91,5 @@ class AtomStore implements IAtomStore {
   }
 }
 
-export const createAtomStore = () => new AtomStore();
+export const createAtomStore = (atomStoreOptions: AtomStoreOptions = {}) =>
+  new AtomStore(atomStoreOptions);
