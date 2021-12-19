@@ -18,7 +18,7 @@ export const StoreInfo = () => {
 function MyApp({ Component, pageProps }: AppProps) {
   const { preloadValues } = pageProps;
 
-  const atomStoreRef = useRef(createAtomStore());
+  const atomStoreRef = useRef(createAtomStore({ isDebugMode: true }));
 
   return (
     <>

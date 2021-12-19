@@ -1,4 +1,4 @@
-import { isProduction } from '../../utils/isProduction';
+import { devlog } from '../../utils/devlog';
 import { Atom } from '../atom/atom';
 
 export type Listener = (atom: Atom<unknown>) => void;
@@ -33,30 +33,45 @@ class AtomStore implements IAtomStore {
   setAtom<T>(atom: Atom<T>): Atom<T> {
     const newAtom = atom;
     const storedAtom = this.atoms.get(atom.key) as Atom<T> | undefined;
+    const setNewAtom = () => {
+      this.atoms.set(newAtom.key, newAtom);
+      return newAtom;
+    };
+
+    if (storedAtom === undefined) {
+      return setNewAtom();
+    }
+
+    const isStoredAtomPreload = storedAtom.meta.isPreload;
+    const isNewAtomPreload = newAtom.meta.isPreload;
 
     // If already stored atom that is not isPreload, return current stored atom.
-    if (storedAtom?.meta.isPreload === false && newAtom.meta.isPreload) {
-      if (
-        isProduction &&
-        this.isDebugMode &&
-        storedAtom.meta.initialValue !== storedAtom.meta.initialValue
-      ) {
-        console.warn(
-          `You trying to resgiter same key atom. Please consider ${atom.key}'s atom`
-        );
-      }
+    if (!isStoredAtomPreload && isNewAtomPreload) {
       return storedAtom;
     }
 
     // If already stored atom that is ot isPreload, then merge atom, return it.
-    if (!newAtom.meta.isPreload && storedAtom?.meta.isPreload) {
+    if (isStoredAtomPreload && !isNewAtomPreload) {
       newAtom.value = storedAtom.value;
       newAtom.meta.isPreload = false;
     }
 
-    this.atoms.set(newAtom.key, newAtom);
+    if (!isStoredAtomPreload && !isNewAtomPreload) {
+      const storedAtomInitialValue = storedAtom.meta.initialValue;
+      const newAtomInitialValue = newAtom.meta.initialValue;
 
-    return newAtom;
+      // If try to set duplicate atom has same key
+      if (this.isDebugMode && storedAtomInitialValue !== newAtomInitialValue) {
+        devlog(
+          `You try to set duplicated atom has same key "${atom.key}". Please consider to change key.`,
+          'warn'
+        );
+      }
+
+      return storedAtom;
+    }
+
+    return setNewAtom();
   }
 
   dispatchAtom<T>(atom: Atom<T>): void {

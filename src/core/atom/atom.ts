@@ -4,12 +4,12 @@ export type Atom<T> = {
   key: string;
   value: T;
   options: AtomOptions;
-  meta: AtomMeta<T>;
+  meta: AtomMeta;
 };
 export type AtomValue<T> = T extends Atom<infer U> ? U : never;
-export type AtomMeta<T> = {
+export type AtomMeta = {
   isPreload: boolean;
-  initialValue: T;
+  initialValue: string;
 };
 export type AtomOptions = {
   equalFn: EqualFn;
@@ -25,7 +25,8 @@ export const createBaseAtom =
     value,
     meta: {
       isPreload,
-      initialValue: value,
+      initialValue:
+        typeof value === 'object' ? JSON.stringify(value) : String(value),
     },
     options: {
       equalFn,
