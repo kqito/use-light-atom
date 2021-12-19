@@ -1,4 +1,3 @@
-import { createContext } from 'react';
 import { Atom } from '../atom/atom';
 
 export type Listener = (atom: Atom<unknown>) => void;
@@ -77,5 +76,3 @@ class AtomStore implements IAtomStore {
 }
 
 export const createAtomStore = () => new AtomStore();
-
-export const AtomStoreContext = createContext<IAtomStore>(createAtomStore());
