@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect } from 'react';
 import { useAtom } from '..';
 import { Atom } from '../atom/atom';
 
@@ -8,7 +8,7 @@ export type UseMergeAtom = <T>(atom: Atom<T>, merge: Merge<T>) => void;
 export const useMergeAtom: UseMergeAtom = (atom, merge) => {
   const [state, setState] = useAtom(atom);
 
-  useMemo(() => {
+  useEffect(() => {
     const nextState = merge(state);
     if (nextState === undefined) {
       return;
