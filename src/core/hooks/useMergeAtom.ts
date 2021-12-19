@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useAtom } from '..';
+import { useAtom } from '../hooks/useAtom';
 import { Atom } from '../atom/atom';
 
 export type Merge<T> = (prev: T) => T | undefined;
