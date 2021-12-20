@@ -3,10 +3,14 @@ export type EqualFn = (a: any, b: any) => boolean;
 export type Atom<T> = {
   key: string;
   value: T;
-  isPreload: boolean;
   options: AtomOptions;
+  meta: AtomMeta;
 };
 export type AtomValue<T> = T extends Atom<infer U> ? U : never;
+export type AtomMeta = {
+  isPreload: boolean;
+  initialValue: string;
+};
 export type AtomOptions = {
   equalFn: EqualFn;
 };
@@ -19,7 +23,11 @@ export const createBaseAtom =
   (key, value, { equalFn = Object.is } = {}) => ({
     key,
     value,
-    isPreload,
+    meta: {
+      isPreload,
+      initialValue:
+        typeof value === 'object' ? JSON.stringify(value) : String(value),
+    },
     options: {
       equalFn,
     },

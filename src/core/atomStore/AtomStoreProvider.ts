@@ -1,6 +1,7 @@
 import { createElement, FC, useMemo, useRef } from 'react';
 import { createPreloadAtom } from '../atom/atom';
-import { createAtomStore, IAtomStore, AtomStoreContext } from './atomStore';
+import { createAtomStore, IAtomStore } from './atomStore';
+import { AtomStoreContext } from './AtomStoreContext';
 
 export type AtomStoreProviderProps = Readonly<{
   atomStore?: IAtomStore;

@@ -1,5 +1,6 @@
 import { useContext } from 'react';
-import { AtomStoreContext, IAtomStore } from '../atomStore/atomStore';
+import { IAtomStore } from '../atomStore/atomStore';
+import { AtomStoreContext } from '../atomStore/AtomStoreContext';
 
 export const useAtomStore = (): IAtomStore => {
   return useContext(AtomStoreContext);

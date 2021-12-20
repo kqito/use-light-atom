@@ -1,9 +1,10 @@
 import { useCallback, useContext, useMemo, useRef, useState } from 'react';
-import { Listener, AtomStoreContext } from '../atomStore/atomStore';
+import { Listener } from '../atomStore/atomStore';
 import { Atom, EqualFn } from '../atom/atom';
 import { Selector, useFunctionRef } from '../../utils/useFunctionRef';
 import { useIsomorphicLayoutEffect } from '../../utils/useIsomorphicLayoutEffect';
-import { isProduction } from '../../utils/isProduction';
+import { AtomStoreContext } from '../atomStore/AtomStoreContext';
+import { devlog } from '../../utils/devlog';
 
 export type UseAtomStateOptions<T, S> = {
   selector?: Selector<T, S>;
@@ -53,11 +54,7 @@ export const useAtomState: UseAtomState = <T, S>(
         prevStateRef.current = newState;
         setState(newState);
       } catch (err) {
-        if (isProduction) {
-          return;
-        }
-
-        console.error(err);
+        devlog(err, 'error');
       }
     };
 

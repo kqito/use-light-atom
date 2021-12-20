@@ -390,8 +390,14 @@ same as `createAtom`
 ### `createAtomStore` function
 
 ```tsx
-const atomStore = createAtomStore()
+const atomStore = createAtomStore({ isDebugMode })
 ```
+
+#### Arguments
+- `isDebugMode` (type: `boolean`)
+  - Default is `false`
+  - If set `true`, `use-light-atom` will output error when encounter some errors.
+
 
 `createAtomStore` is a function that creates a store. It is mainly used for SSR.
 
