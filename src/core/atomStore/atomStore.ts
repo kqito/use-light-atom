@@ -1,4 +1,5 @@
 import { devlog } from '../../utils/devlog';
+import { isProduction } from '../../utils/isProduction';
 import { Atom } from '../atom/atom';
 
 export type Listener = (atom: Atom<unknown>) => void;
@@ -23,7 +24,7 @@ class AtomStore implements IAtomStore {
   constructor({ isDebugMode }: AtomStoreOptions = {}) {
     this.atoms = new Map();
     this.listeners = [];
-    this.isDebugMode = isDebugMode || false;
+    this.isDebugMode = isDebugMode || !isProduction;
   }
 
   getAtoms(): Record<string, Atom<unknown>> {
