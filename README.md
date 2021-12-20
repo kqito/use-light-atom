@@ -3,7 +3,7 @@
 </h3>
 
 <p align="center">
-   A lightweight atom-based state management for react
+   Lightweight atom-based state management for react
 </p>
 
 <p align="center">
@@ -393,13 +393,12 @@ same as `createAtom`
 const atomStore = createAtomStore({ isDebugMode })
 ```
 
+`createAtomStore` is a function that creates a store. It is mainly used for SSR.
+
 #### Arguments
 - `isDebugMode` (type: `boolean`)
-  - Default is `false`
+  - Default is `process.env.NODE_ENV !== production`
   - If set `true`, `use-light-atom` will output error when encounter some errors.
-
-
-`createAtomStore` is a function that creates a store. It is mainly used for SSR.
 
 ---
 
@@ -416,6 +415,7 @@ const atomStore = useAtomStore()
 ```
 
 `useAtomStore` is a hooks that get store in `AtomStoreProvider`.
+
 ---
 
 ### `useMergeAtom` hooks
@@ -425,6 +425,7 @@ useMergeAtom(atom, mergeFn)
 ```
 
 `useMergeAtom` is a hooks that synchronously rewrites the value of atom.
+
 Whenever the value of the atom argument is updated, the `mergeFn` function will be executed.
 
 #### Arguments
