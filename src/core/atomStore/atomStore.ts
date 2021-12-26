@@ -64,12 +64,10 @@ class AtomStore implements IAtomStore {
       // If try to set duplicate atom has same key
       if (this.isDebugMode && storedAtomInitialValue !== newAtomInitialValue) {
         devlog(
-          `You try to set duplicated atom has same key "${atom.key}". Please consider to change key.`,
+          `You try to set duplicated atom has same key "${atom.key}"`,
           'warn'
         );
       }
-
-      return storedAtom;
     }
 
     return setNewAtom();
