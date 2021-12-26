@@ -37,13 +37,14 @@ describe('atomStore', () => {
   });
 
   test('Try to Register duplicated atoms has same key and not same value', () => {
-    const user1Atom = createAtom('user', {
-      name: 'example1',
+    const duplicatedKey = 'user';
+    const user1Atom = createAtom(duplicatedKey, {
+      name: duplicatedKey + '1',
       age: 22,
     });
 
-    const user2Atom = createAtom('user', {
-      name: 'example2',
+    const user2Atom = createAtom(duplicatedKey, {
+      name: duplicatedKey + '2',
       age: 22,
     });
 
@@ -51,13 +52,13 @@ describe('atomStore', () => {
 
     expect(atomStore.setAtom(user1Atom)).toEqual(user1Atom);
     expect(atomStore.getAtoms()).toEqual({
-      [user1Atom.key]: user1Atom,
+      [duplicatedKey]: user1Atom,
     });
     expect(spyOnDevlog).toBeCalledTimes(0);
 
-    expect(atomStore.setAtom(user2Atom)).toEqual(user1Atom);
+    expect(atomStore.setAtom(user2Atom)).toEqual(user2Atom);
     expect(atomStore.getAtoms()).toEqual({
-      [user1Atom.key]: user1Atom,
+      [duplicatedKey]: user2Atom,
     });
     expect(spyOnDevlog).toBeCalledTimes(1);
   });
