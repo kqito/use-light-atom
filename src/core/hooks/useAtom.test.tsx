@@ -1,5 +1,5 @@
 import { getByTestId } from '@testing-library/dom';
-import { createAtom, createPreloadAtom } from '../atom/atom';
+import { createAtom } from '../atom/atom';
 import { useAtom } from './useAtom';
 import { AtomStoreProvider } from '../atomStore/AtomStoreProvider';
 import { useIsomorphicLayoutEffect } from '../../utils/useIsomorphicLayoutEffect';
@@ -19,7 +19,7 @@ describe('useAtom', () => {
   describe('Initial state', () => {
     const testTarget: TestTarget = () => {
       const User = () => {
-        const userAtom = createAtom('user', {
+        const userAtom = createAtom({
           name: 'example',
           age: -1,
         });
@@ -53,7 +53,7 @@ describe('useAtom', () => {
   describe('SetState', () => {
     describe('Dispath with literal', () => {
       const testTarget: TestTarget = () => {
-        const userAtom = createAtom('user', {
+        const userAtom = createAtom({
           name: '',
           age: -1,
         });
@@ -93,11 +93,13 @@ describe('useAtom', () => {
           expects: (container: HTMLElement) => {
             expect(getByTestId(container, 'name').textContent).toBe('example');
             expect(getByTestId(container, 'age').textContent).toBe('22');
-            expect(store.getAtoms().user).toEqual({
-              ...userAtom,
-              value: {
-                name: 'example',
-                age: 22,
+            expect(store.getAtoms()).toEqual({
+              [userAtom.key]: {
+                ...userAtom,
+                value: {
+                  name: 'example',
+                  age: 22,
+                },
               },
             });
           },
@@ -109,7 +111,7 @@ describe('useAtom', () => {
 
     describe('Dispath with function', () => {
       const testTarget: TestTarget = () => {
-        const userAtom = createAtom('user', {
+        const userAtom = createAtom({
           name: '',
           age: -1,
         });
@@ -150,11 +152,13 @@ describe('useAtom', () => {
           expects: (container) => {
             expect(getByTestId(container, 'name').textContent).toBe('example');
             expect(getByTestId(container, 'age').textContent).toBe('22');
-            expect(store.getAtoms().user).toEqual({
-              ...userAtom,
-              value: {
-                name: 'example',
-                age: 22,
+            expect(store.getAtoms()).toEqual({
+              [userAtom.key]: {
+                ...userAtom,
+                value: {
+                  name: 'example',
+                  age: 22,
+                },
               },
             });
           },
@@ -167,7 +171,7 @@ describe('useAtom', () => {
 
   describe('Initial state from store', () => {
     const testTarget: TestTarget = () => {
-      const userAtom = createAtom('user', {
+      const userAtom = createAtom({
         name: '',
         age: -1,
       });
@@ -184,12 +188,10 @@ describe('useAtom', () => {
       };
 
       const atomStore = createAtomStore();
-      atomStore.setAtom(
-        createPreloadAtom('user', {
-          name: 'example',
-          age: 22,
-        })
-      );
+      atomStore.setPreloadValue(userAtom.key, {
+        name: 'example',
+        age: 22,
+      });
 
       return {
         root: (
@@ -210,12 +212,12 @@ describe('useAtom', () => {
   describe('With multi atoms', () => {
     const testTarget: TestTarget = () => {
       const User = () => {
-        const userAtom = createAtom('user', {
+        const userAtom = createAtom({
           name: '',
           age: -1,
         });
 
-        const countAtom = createAtom('count', 0);
+        const countAtom = createAtom(0);
 
         const [name] = useAtom(userAtom, { selector: ({ name }) => name });
         const [age] = useAtom(userAtom, { selector: ({ age }) => age });
@@ -267,7 +269,6 @@ describe('useAtom', () => {
     const testTarget: TestTarget = () => {
       const User = () => {
         const userAtom = createAtom(
-          'user',
           {
             name: '',
             age: -1,
@@ -277,7 +278,7 @@ describe('useAtom', () => {
           }
         );
 
-        const dateAtom = createAtom('date', {
+        const dateAtom = createAtom({
           month: -1,
           date: -1,
         });

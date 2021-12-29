@@ -46,7 +46,7 @@ We can use `use-light-atom` as following.
 ```tsx
 import { AtomStoreProvider, useAtom, createAtom } from 'use-light-atom'
 
-export const counterAtom = createAtom('counter', {
+export const counterAtom = createAtom({
   count: 0
 });
 
@@ -84,11 +84,11 @@ We can use the state and the function to update it from atom as follows
 ```tsx
 import { useAtom, createAtom } from 'use-light-atom'
 
-export const counterAtom = createAtom('counter', {
+export const counterAtom = createAtom({
   count: 0
 });
 
-export const userAtom = createAtom('userInfomation', {
+export const userAtom = createAtom({
   age: 22,
   name: 'kqito'
 });
@@ -121,7 +121,7 @@ If specify `selector`, we can extract only the necessary values from the atom
 ```tsx
 import { useAtomState, createAtom } from 'use-light-atom'
 
-export const userAtom = createAtom('userInfomation', {
+export const userAtom = createAtom({
   age: 22,
   name: 'kqito'
 });
@@ -145,10 +145,7 @@ If you want to change the equal function, you can specify the equalFn option. (d
 ```tsx
 import { useAtomState, createAtom } from 'use-light-atom'
 
-export const counterAtom = createAtom('counter',
-  {
-    count: 0
-  },
+export const counterAtom = createAtom({ count: 0 },
   {
     // we can specify default equalFn
     equalFn: deepEqual
@@ -195,7 +192,7 @@ Next, the pages component file you want to SG should look like this
 import type { GetStaticProps, NextPage } from 'next';
 import { createAtom, useAtomState } from 'use-light-atom';
 
-const countAtom = createAtom('counter', 0);
+const countAtom = createAtom(0);
 
 const CounterPage: NextPage = () => {
   const count = useAtomState(countAtom);
@@ -227,10 +224,11 @@ Alternatively, you can use the `useMergeAtom` hooks.
 import type { GetStaticProps, NextPage } from 'next';
 import { createAtom, useAtomState, useMergeAtom } from 'use-light-atom';
 
-const countAtom = createAtom('counter', 0);
+const countAtom = createAtom(0);
 
 const CounterPage: NextPage = ({ preloadValues }) => {
-  useMergeAtom(countAtom, () => preloadValues.counter)
+const setter = useCallback(() => preloadValues.counter, [preloadValues.counter])
+  useMergeAtom(countAtom, setter)
   const count = useAtomState(countAtom);
 
   return (
@@ -326,15 +324,12 @@ const setState = useAtomState(atom);
 ### `createAtom` function
 
 ```tsx
-const atom = createAtom(key, value, { equalFn });
+const atom = createAtom(value, { equalFn });
 ```
 
 `createAtom` is a function to create atom.
 
 #### Arguments
-- `key` (type: `string`)
-  - The atom key must be unique.
-
 - `value` (type: `T`)
   - Initial value of atom.
 
@@ -343,25 +338,6 @@ const atom = createAtom(key, value, { equalFn });
   - Default is `Object.is`.
   - A function that compares the current value of store with the value of store when it changes.
   - If the return value is true, re-rendering will occur.
-
----
-
-### `createPreloadAtom` function
-
-```tsx
-const atom = createPreloadAtom(key, value, { equalFn });
-```
-
-`createPreloadAtom` is a function to create preload atom.
-
-`Preload atom` can be used when you want to use a SSG value as the initial value.
-
-#### Arguments
-same as `createAtom`
-
-#### Returns
-- `atom` (type: `Atom<T>`)
-  - Atom available for useAtom hooks, etc.
 
 ---
 

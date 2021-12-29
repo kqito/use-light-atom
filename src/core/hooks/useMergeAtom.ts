@@ -15,5 +15,6 @@ export const useMergeAtom: UseMergeAtom = (atom, merge) => {
     }
 
     setState(nextState);
-  }, [merge, setState, state]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [merge]);
 };

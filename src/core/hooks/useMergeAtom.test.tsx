@@ -15,7 +15,7 @@ describe('useMergeAtom', () => {
       name: string;
       age: number;
     };
-    const userAtom = createAtom<User>('user', {
+    const userAtom = createAtom<User>({
       name: '',
       age: -1,
     });
@@ -74,7 +74,7 @@ describe('useMergeAtom', () => {
   });
 
   test('Should not override when setter is undefined', () => {
-    const userAtom = createAtom('user', {
+    const userAtom = createAtom({
       name: '',
       age: -1,
     });

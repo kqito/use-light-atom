@@ -4,7 +4,7 @@ import styles from '../styles/Home.module.css';
 
 import { createAtom, useAtom, useAtomSetState } from '../dist';
 
-export const countAtom = createAtom('counter', 0);
+export const countAtom = createAtom(0);
 
 export const Counter = () => {
   const [count] = useAtom(countAtom);

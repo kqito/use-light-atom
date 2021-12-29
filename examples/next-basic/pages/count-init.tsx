@@ -13,7 +13,7 @@ type PreloadValues = {
 
 const CounterPage: NextPage<PreloadValues> = ({ preloadValues }) => {
   const count = preloadValues[countAtom.key];
-  const setter = useCallback(() => 0, [count]);
+  const setter = useCallback(() => count, [count]);
 
   useMergeAtom(countAtom, setter);
 
