@@ -1,9 +1,10 @@
 import Link from 'next/link';
 import type { GetStaticProps, NextPage } from 'next';
-import { countAtom, Counter } from '.';
 import styles from '../styles/Home.module.css';
 import { useMergeAtom } from '../dist';
 import { useCallback } from 'react';
+import { Counter } from '../components/counter';
+import { countAtom } from '../atoms/countAtom';
 
 type PreloadValues = {
   preloadValues: {

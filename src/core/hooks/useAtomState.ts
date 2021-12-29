@@ -1,10 +1,8 @@
-import { useCallback, useMemo, useRef, useState } from 'react';
-import { Listener } from '../atomStore/atomStore';
-import { Atom, EqualFn } from '../atom/atom';
+import { useCallback, useRef, useState } from 'react';
+import { IAtom, EqualFn, Listener } from '../atom/atom';
 import { Selector, useFunctionRef } from '../../utils/useFunctionRef';
 import { useIsomorphicLayoutEffect } from '../../utils/useIsomorphicLayoutEffect';
 import { devWarnLog } from '../../utils/devlog';
-import { useAtomStore } from './useAtomStore';
 
 export type UseAtomStateOptions<T, S> = {
   selector?: Selector<T, S>;
@@ -12,15 +10,17 @@ export type UseAtomStateOptions<T, S> = {
 };
 
 export type UseAtomState = {
-  <T, S = T>(atom: Atom<T>): S;
-  <T, S = T>(atom: Atom<T>, useAtomStateOptions?: UseAtomStateOptions<T, S>): S;
+  <T, S = T>(atom: IAtom<T>): S;
+  <T, S = T>(
+    atom: IAtom<T>,
+    useAtomStateOptions?: UseAtomStateOptions<T, S>
+  ): S;
 };
 
 export const useAtomState: UseAtomState = <T, S>(
-  atom: Atom<T>,
+  atom: IAtom<T>,
   { selector, equalFn }: UseAtomStateOptions<T, S> = {}
 ) => {
-  const atomStore = useAtomStore();
   const selectStateRef = useFunctionRef(selector);
   const equalFnRef = useFunctionRef(equalFn);
 
@@ -30,24 +30,15 @@ export const useAtomState: UseAtomState = <T, S>(
     [selectStateRef]
   );
 
-  const initialAtom = useMemo(
-    (): Atom<T> => atomStore.setAtom<T>(atom),
-    [atom, atomStore]
-  );
-
-  const [state, setState] = useState<S>(selectState(initialAtom.value));
-  const prevStateRef = useRef<S>(selectState(initialAtom.value));
+  const [state, setState] = useState<S>(selectState(atom.value));
+  const prevStateRef = useRef<S>(selectState(atom.value));
 
   useIsomorphicLayoutEffect(() => {
-    const listener: Listener = (nextAtom) => {
+    const equalFn = equalFnRef.current || atom.options.equalFn;
+    const listener: Listener<T> = (value) => {
       try {
-        if (atom.key !== nextAtom.key) {
-          return;
-        }
-
-        const newState = selectState(nextAtom.value as T);
-        const targetEqualFn = equalFnRef.current || nextAtom.options.equalFn;
-        if (targetEqualFn(prevStateRef.current, newState)) {
+        const newState = selectState(value as T);
+        if (equalFn(prevStateRef.current, newState)) {
           return;
         }
 
@@ -58,12 +49,20 @@ export const useAtomState: UseAtomState = <T, S>(
       }
     };
 
-    atomStore.subscribe(listener);
+    // Change state by changed atom value
+    const initialState = selectState(atom.value);
+
+    if (!equalFn(prevStateRef.current, initialState)) {
+      setState(initialState);
+      prevStateRef.current = initialState;
+    }
+
+    atom.subscribe(listener);
 
     return () => {
-      atomStore.unsubscribe(listener);
+      atom.unsubscribe(listener);
     };
-  }, [atom.key, selectState, atomStore]);
+  }, [atom, equalFnRef, selectState]);
 
   return state;
 };

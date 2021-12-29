@@ -15,7 +15,10 @@ export type TestTarget = () => {
 
 export const expectRenderResult = (target: TestTarget) => {
   it('CSR', () => {
-    useIsomorphicLayoutEffectMock.mockImplementation(useLayoutEffect);
+    useIsomorphicLayoutEffectMock.mockImplementation((callback, deps) =>
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      useLayoutEffect(callback, deps)
+    );
     const { root, expects } = target();
     const { container } = render(root);
 
@@ -23,7 +26,7 @@ export const expectRenderResult = (target: TestTarget) => {
   });
 
   it('SSR', () => {
-    useIsomorphicLayoutEffectMock.mockImplementation((effect) => effect());
+    useIsomorphicLayoutEffectMock.mockImplementation((callback) => callback());
 
     const { root, expects } = target();
     const innerElement = renderToString(root);
