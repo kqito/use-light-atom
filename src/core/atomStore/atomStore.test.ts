@@ -1,13 +1,9 @@
+import { createDevlogMock } from '../../testUtils/devlogMock';
 import { createAtom } from '../atom/atom';
 import { createAtomStore } from './atomStore';
-import * as devLogObject from '../../utils/devlog';
 
 describe('atomStore', () => {
-  const spyOnDevlog = jest
-    .spyOn(devLogObject, 'devlog')
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    .mockImplementation(() => {});
-
+  const spyOnDevlog = createDevlogMock();
   beforeEach(() => {
     jest.resetAllMocks();
   });
