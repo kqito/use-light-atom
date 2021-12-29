@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { Atom } from '../atom/atom';
 import { isCallable } from '../../utils/isCallable';
-import { devlog } from '../../utils/devlog';
+import { devWarnLog } from '../../utils/devlog';
 import { useAtomStore } from './useAtomStore';
 
 export type Setter<T> = ((state: T) => T) | T;
@@ -15,7 +15,7 @@ export const useAtomSetState = <T>(atom: Atom<T>) => {
       const storedAtom = atomStore.setAtom<T>(atom);
 
       if (storedAtom === undefined) {
-        devlog(`${atom.key}'s atom has not stored.'`, 'error');
+        devWarnLog(`${atom.key}'s atom has not stored.'`);
         return;
       }
 

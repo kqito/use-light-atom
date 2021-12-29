@@ -3,7 +3,7 @@ import { Listener } from '../atomStore/atomStore';
 import { Atom, EqualFn } from '../atom/atom';
 import { Selector, useFunctionRef } from '../../utils/useFunctionRef';
 import { useIsomorphicLayoutEffect } from '../../utils/useIsomorphicLayoutEffect';
-import { devlog } from '../../utils/devlog';
+import { devWarnLog } from '../../utils/devlog';
 import { useAtomStore } from './useAtomStore';
 
 export type UseAtomStateOptions<T, S> = {
@@ -54,7 +54,7 @@ export const useAtomState: UseAtomState = <T, S>(
         prevStateRef.current = newState;
         setState(newState);
       } catch (err) {
-        devlog(err, 'error');
+        devWarnLog(err);
       }
     };
 

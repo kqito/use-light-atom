@@ -1,4 +1,4 @@
-import { devlog } from '../../utils/devlog';
+import { devWarnLog } from '../../utils/devlog';
 import { isProduction } from '../../utils/isProduction';
 import { Atom } from '../atom/atom';
 
@@ -12,17 +12,20 @@ export interface IAtomStore {
   getAtoms: () => Record<string, Atom<unknown>>;
   setAtom: <T>(atom: Atom<T>) => Atom<T>;
   dispatchAtom: <T>(atom: Atom<T>) => void;
+  setPreloadValue: (key: string, value: unknown) => void;
   subscribe: (listener: Listener) => void;
   unsubscribe: (listener: Listener) => void;
 }
 
 class AtomStore implements IAtomStore {
   private atoms: Map<string, Atom<unknown>>;
+  private preloadValues: Map<string, unknown>;
   private listeners: Array<(atom: Atom<unknown>) => void>;
   private isDebugMode: boolean;
 
   constructor({ isDebugMode }: AtomStoreOptions = {}) {
     this.atoms = new Map();
+    this.preloadValues = new Map();
     this.listeners = [];
     this.isDebugMode = isDebugMode || !isProduction;
   }
@@ -34,49 +37,43 @@ class AtomStore implements IAtomStore {
   setAtom<T>(atom: Atom<T>): Atom<T> {
     const newAtom = atom;
     const storedAtom = this.atoms.get(atom.key) as Atom<T> | undefined;
+    const preloadValue = this.preloadValues.get(newAtom.key);
     const setNewAtom = () => {
       this.atoms.set(newAtom.key, newAtom);
       return newAtom;
     };
 
-    if (storedAtom === undefined) {
-      return setNewAtom();
-    }
-
-    const isStoredAtomPreload = storedAtom.meta.isPreload;
-    const isNewAtomPreload = newAtom.meta.isPreload;
-
-    // If already stored atom that is not isPreload, return current stored atom.
-    if (!isStoredAtomPreload && isNewAtomPreload) {
+    if (storedAtom) {
       return storedAtom;
     }
 
-    // If already stored atom that is ot isPreload, then merge atom, return it.
-    if (isStoredAtomPreload && !isNewAtomPreload) {
-      newAtom.value = storedAtom.value;
-      newAtom.meta.isPreload = false;
-    }
-
-    if (!isStoredAtomPreload && !isNewAtomPreload) {
-      const storedAtomInitialValue = storedAtom.meta.initialValue;
-      const newAtomInitialValue = newAtom.meta.initialValue;
-
-      // If try to set duplicate atom has same key
-      if (this.isDebugMode && storedAtomInitialValue !== newAtomInitialValue) {
-        devlog(
-          `You try to set duplicated atom has same key "${atom.key}"`,
-          'warn'
-        );
-      }
+    if (preloadValue) {
+      newAtom.value = preloadValue as T;
     }
 
     return setNewAtom();
+  }
+
+  setPreloadValue(key: string, value: unknown): void {
+    const hasStoredAtom = this.atoms.has(key);
+    if (hasStoredAtom) {
+      return;
+    }
+
+    this.preloadValues.set(key, value);
   }
 
   dispatchAtom<T>(atom: Atom<T>): void {
     const storedAtom = this.atoms.get(atom.key);
 
     if (storedAtom === undefined) {
+      if (this.isDebugMode) {
+        devWarnLog(
+          'Dispatch failed because specified atom has not been stored',
+          atom
+        );
+      }
+
       return;
     }
 

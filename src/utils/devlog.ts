@@ -1,11 +1,10 @@
 import { isProduction } from './isProduction';
 
-type LogType = 'log' | 'warn' | 'error';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const devlog = (message: any, type: LogType) => {
+export const devWarnLog = (...message: any) => {
   if (isProduction) {
     return;
   }
 
-  console[type](message);
+  console.warn(...message);
 };
