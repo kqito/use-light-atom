@@ -44,14 +44,12 @@ yarn add use-light-atom
 We can use `use-light-atom` as following.
 
 ```tsx
-import { AtomStoreProvider, useAtom, createAtom } from 'use-light-atom'
+import { useAtom, createAtom } from 'use-light-atom'
 
-export const counterAtom = createAtom({
-  count: 0
-});
+export const counterAtom = createAtom(0);
 
 export const Counter = () => {
-  const [{ count }, setCountState] = useAtom(counterAtom);
+  const [count, setCountState] = useAtom(counterAtom);
 
   return (
     <div>
@@ -65,18 +63,10 @@ export const Counter = () => {
     </div>
   );
 };
-
-const App = () => (
-  <AtomStoreProvider>
-    <Counter />
-  </AtomStoreProvider>
-)
 ```
 
 ## Examples
 The following are some example of how to use `use-light-atom`.
-
-Note that the `AtomStoreProvider` must be specified as the parent or higher element.
 
 ### Basic
 We can use the state and the function to update it from atom as follows
@@ -84,9 +74,7 @@ We can use the state and the function to update it from atom as follows
 ```tsx
 import { useAtom, createAtom } from 'use-light-atom'
 
-export const counterAtom = createAtom({
-  count: 0
-});
+export const counterAtom = createAtom(0);
 
 export const userAtom = createAtom({
   age: 22,
@@ -94,7 +82,7 @@ export const userAtom = createAtom({
 });
 
 export const Counter = () => {
-  const [{ count }, setCountState] = useAtom(counterAtom);
+  const [count, setCountState] = useAtom(counterAtom);
   // get only state without setState function
   const userState = useAtomState(userAtom);
   // get only setState function without state
@@ -145,47 +133,60 @@ If you want to change the equal function, you can specify the equalFn option. (d
 ```tsx
 import { useAtomState, createAtom } from 'use-light-atom'
 
-export const counterAtom = createAtom({ count: 0 },
-  {
-    // we can specify default equalFn
-    equalFn: deepEqual
-  }
-);
+export const counterAtom = createAtom(0, {
+  // we can specify default equalFn
+  equalFn: deepEqual
+});
 
 export const Counter = () => {
   // we can speicfy equalFn
-  const countState = useAtomState(counterAtom, { equalFn: deepEqual });
+  const count = useAtomState(counterAtom, { equalFn: deepEqual });
 
   return (
     <div>
-      <p>Counter: {countState.count}</p>
+      <p>Counter: {count}</p>
     </div>
   );
 };
 ```
 
+### Updating state outside of react
+We can update the state by rewriting the `atom.value` directly.
+
+This is useful when writing operations outside of the react lifecycle.
+
+```tsx
+import { useAtomState, createAtom } from 'use-light-atom'
+
+type AsyncData = string | undefined
+export const dataAtom = createAtom<AsyncData>();
+
+export const DataDisplayer = () => {
+  const data = useAtomState(dataAtom);
+
+  if ( data === undefined ) {
+    return null
+  }
+
+  return (
+    <p>{data}</p>
+  );
+};
+
+```
+
+```tsx
+// DataDisplayer will return null
+dataAtom.value = undefined
+
+// DataDisplayer will return 'hogehoge' with rerender
+dataAtom.value = 'hogehoge'
+```
+
 
 ### Static Generation with Next.js
 
-Allow _app to pass initial values to the store by doing the following.
-
-```tsx
-import { StoreProvider } from 'use-light-atom';
-
-function MyApp({ Component, pageProps }) {
-  const { preloadValues } = pageProps;
-
-  return (
-    <StoreProvider preloadValues={preloadValues}>
-      <Component {...pageProps} />
-    </StoreProvider>
-  );
-}
-
-export default MyApp;
-```
-
-Next, the pages component file you want to SG should look like this
+At first, pages component file you want to SG should look like this
 
 
 ```tsx
@@ -217,7 +218,7 @@ export const getStaticProps: GetStaticProps = () => {
 };
 ```
 
-Alternatively, you can use the `useMergeAtom` hooks.
+Next, you can use the `useMergeAtom` hooks as following.
 
 
 ```tsx
@@ -268,7 +269,7 @@ const [state, setState] = useAtom(atom, { selector, equalFn });
    - Function option that allows you to extract only the state you need from the atom.
 
 - `equalFn` (type: `(a: any, b: any) => boolean`)
-  - A function that compares the current value of store with the value of store when it changes.
+  - A function that compares the current value with the next value when it changes.
   - If `equalFn` is not specified, the `equalFn` specified in atom will be applied.
   - If the return value is true, re-rendering will occur.
 
@@ -336,61 +337,8 @@ const atom = createAtom(value, { equalFn });
 - `equalFn` (type: `(a: any, b: any) => boolean`)
   - If no equalFn option such as useAtom hooks is specified, this value will be applied.
   - Default is `Object.is`.
-  - A function that compares the current value of store with the value of store when it changes.
+  - A function that compares the current value with the next value when it changes.
   - If the return value is true, re-rendering will occur.
-
----
-
-### `AtomStoreProvider` component
-
-```tsx
- <AtomStoreProvider atomStore={atomStore} preloadValues={preloadValues}>
-  { children here... }
- </AtomStoreProvider>
-```
-
-`AtomStoreProvider` is a component for managing atom.
-
-**In order to use the useAtom hooks etc, you need to set the `AtomStoreProvider` on the parent or higher element.**
-
-#### Props
-- `atomStore` (type: `AtomStore | undefined`)
-  - props to set the store created by the `createAtomStore` function to Provider
-
-- `preloadValues` (type: `Record<string, unknown> | undefined`)
-  - props used to store key and value as a preload atom.
-  - This is useful for inheriting SSR values.
-
----
-
-### `createAtomStore` function
-
-```tsx
-const atomStore = createAtomStore({ isDebugMode })
-```
-
-`createAtomStore` is a function that creates a store. It is mainly used for SSR.
-
-#### Arguments
-- `isDebugMode` (type: `boolean`)
-  - Default is `process.env.NODE_ENV !== production`
-  - If set `true`, `use-light-atom` will output error when encounter some errors.
-
----
-
-### AtomStore
-- `AtomStore.getAtoms` (type:  `Record<string, unknown>`)
-  - Function to get the atoms stored in the store.
-
----
-
-### `useAtomStore` hooks
-
-```tsx
-const atomStore = useAtomStore()
-```
-
-`useAtomStore` is a hooks that get store in `AtomStoreProvider`.
 
 ---
 
