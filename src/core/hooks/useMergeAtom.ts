@@ -1,15 +1,15 @@
 import { useEffect } from 'react';
-import { useAtom } from '../hooks/useAtom';
-import { Atom } from '../atom/atom';
+import { IAtom } from '../atom/atom';
+import { useAtomSetState } from './useAtomSetState';
 
 export type Merge<T> = (prev: T) => T | undefined;
-export type UseMergeAtom = <T>(atom: Atom<T>, merge: Merge<T>) => void;
+export type UseMergeAtom = <T>(atom: IAtom<T>, merge: Merge<T>) => void;
 
 export const useMergeAtom: UseMergeAtom = (atom, merge) => {
-  const [state, setState] = useAtom(atom);
+  const setState = useAtomSetState(atom);
 
   useEffect(() => {
-    const nextState = merge(state);
+    const nextState = merge(atom.value);
     if (nextState === undefined) {
       return;
     }

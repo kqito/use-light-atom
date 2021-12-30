@@ -1,10 +1,8 @@
 import { getByTestId } from '@testing-library/dom';
 import { createAtom } from '../atom/atom';
 import { useAtom } from './useAtom';
-import { AtomStoreProvider } from '../atomStore/AtomStoreProvider';
 import { useIsomorphicLayoutEffect } from '../../utils/useIsomorphicLayoutEffect';
 import { useAtomSetState } from './useAtomSetState';
-import { createAtomStore } from '../atomStore/atomStore';
 import deepEqual from 'fast-deep-equal';
 import {
   TestTarget,
@@ -35,11 +33,7 @@ describe('useAtom', () => {
       };
 
       return {
-        root: (
-          <AtomStoreProvider>
-            <User />
-          </AtomStoreProvider>
-        ),
+        root: <User />,
         expects: (container) => {
           expect(getByTestId(container, 'name').textContent).toBe('example');
           expect(getByTestId(container, 'age').textContent).toBe('-1');
@@ -82,26 +76,11 @@ describe('useAtom', () => {
           );
         };
 
-        const store = createAtomStore();
-
         return {
-          root: (
-            <AtomStoreProvider atomStore={store}>
-              <User />
-            </AtomStoreProvider>
-          ),
+          root: <User />,
           expects: (container: HTMLElement) => {
             expect(getByTestId(container, 'name').textContent).toBe('example');
             expect(getByTestId(container, 'age').textContent).toBe('22');
-            expect(store.getAtoms()).toEqual({
-              [userAtom.key]: {
-                ...userAtom,
-                value: {
-                  name: 'example',
-                  age: 22,
-                },
-              },
-            });
           },
         };
       };
@@ -141,26 +120,11 @@ describe('useAtom', () => {
           );
         };
 
-        const store = createAtomStore();
-
         return {
-          root: (
-            <AtomStoreProvider atomStore={store}>
-              <User />
-            </AtomStoreProvider>
-          ),
+          root: <User />,
           expects: (container) => {
             expect(getByTestId(container, 'name').textContent).toBe('example');
             expect(getByTestId(container, 'age').textContent).toBe('22');
-            expect(store.getAtoms()).toEqual({
-              [userAtom.key]: {
-                ...userAtom,
-                value: {
-                  name: 'example',
-                  age: 22,
-                },
-              },
-            });
           },
         };
       };
@@ -169,56 +133,14 @@ describe('useAtom', () => {
     });
   });
 
-  describe('Initial state from store', () => {
+  describe('With multi atoms', () => {
     const testTarget: TestTarget = () => {
       const userAtom = createAtom({
         name: '',
         age: -1,
       });
-
+      const countAtom = createAtom(0);
       const User = () => {
-        const [user] = useAtom(userAtom);
-
-        return (
-          <div>
-            <p data-testid="name">{user.name}</p>
-            <p data-testid="age">{user.age}</p>
-          </div>
-        );
-      };
-
-      const atomStore = createAtomStore();
-      atomStore.setPreloadValue(userAtom.key, {
-        name: 'example',
-        age: 22,
-      });
-
-      return {
-        root: (
-          <AtomStoreProvider atomStore={atomStore}>
-            <User />
-          </AtomStoreProvider>
-        ),
-        expects: (container) => {
-          expect(getByTestId(container, 'name').textContent).toBe('example');
-          expect(getByTestId(container, 'age').textContent).toBe('22');
-        },
-      };
-    };
-
-    expectRenderResult(testTarget);
-  });
-
-  describe('With multi atoms', () => {
-    const testTarget: TestTarget = () => {
-      const User = () => {
-        const userAtom = createAtom({
-          name: '',
-          age: -1,
-        });
-
-        const countAtom = createAtom(0);
-
         const [name] = useAtom(userAtom, { selector: ({ name }) => name });
         const [age] = useAtom(userAtom, { selector: ({ age }) => age });
         const [count] = useAtom(countAtom);
@@ -233,11 +155,11 @@ describe('useAtom', () => {
             name: 'example',
             age: 22,
           });
-        }, [userDispatch]);
+        }, []);
 
         useIsomorphicLayoutEffect(() => {
           countDispatch(10);
-        }, [countDispatch]);
+        }, []);
 
         return (
           <div>
@@ -249,11 +171,7 @@ describe('useAtom', () => {
       };
 
       return {
-        root: (
-          <AtomStoreProvider>
-            <User />
-          </AtomStoreProvider>
-        ),
+        root: <User />,
         expects: (container) => {
           expect(getByTestId(container, 'name').textContent).toBe('example');
           expect(getByTestId(container, 'age').textContent).toBe('22');
@@ -267,22 +185,22 @@ describe('useAtom', () => {
 
   describe('With deep equal', () => {
     const testTarget: TestTarget = () => {
+      const userAtom = createAtom(
+        {
+          name: '',
+          age: -1,
+        },
+        {
+          equalFn: deepEqual,
+        }
+      );
+
+      const dateAtom = createAtom({
+        month: -1,
+        date: -1,
+      });
+
       const User = () => {
-        const userAtom = createAtom(
-          {
-            name: '',
-            age: -1,
-          },
-          {
-            equalFn: deepEqual,
-          }
-        );
-
-        const dateAtom = createAtom({
-          month: -1,
-          date: -1,
-        });
-
         const [{ name, age }] = useAtom(userAtom);
         const [{ month, date }] = useAtom(dateAtom, { equalFn: deepEqual });
         const userDispatch = useAtomSetState(userAtom);
@@ -293,14 +211,14 @@ describe('useAtom', () => {
             name: 'example',
             age: 22,
           });
-        }, [userDispatch]);
+        }, []);
 
         useIsomorphicLayoutEffect(() => {
           dateDispatch(() => ({
             month: 12,
             date: 1,
           }));
-        }, [userDispatch]);
+        }, []);
 
         return (
           <div>
@@ -313,11 +231,7 @@ describe('useAtom', () => {
       };
 
       return {
-        root: (
-          <AtomStoreProvider>
-            <User />
-          </AtomStoreProvider>
-        ),
+        root: <User />,
         expects: (container) => {
           expect(getByTestId(container, 'name').textContent).toBe('example');
           expect(getByTestId(container, 'age').textContent).toBe('22');

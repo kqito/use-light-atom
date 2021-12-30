@@ -1,54 +1,29 @@
 import Link from 'next/link';
 import type { GetStaticProps, NextPage } from 'next';
 import styles from '../styles/Home.module.css';
+import {
+  Counter,
+  AsyncCounterButton,
+  CounterButton,
+  ResetCounterButton,
+} from '../components/counter';
+import { countAtom } from '../atoms/countAtom';
+import { useMergeAtom } from '../dist';
+import { useCallback } from 'react';
 
-import { createAtom, useAtom, useAtomSetState } from '../dist';
-
-export const countAtom = createAtom(0);
-
-export const Counter = () => {
-  const [count] = useAtom(countAtom);
-
-  return <p>Counter: {count}</p>;
+type Props = {
+  preloadValues: {
+    count: number;
+  };
 };
 
-export const CounterButton = () => {
-  const [count, setState] = useAtom(countAtom, { selector: (count) => count });
-
-  return (
-    <button onClick={() => setState(count + 1)} style={{ padding: '4px 8px' }}>
-      count + 1
-    </button>
+const CounterPage: NextPage<Props> = ({ preloadValues }) => {
+  const setter = useCallback(
+    (prev: number) => (prev === 0 ? preloadValues.count : undefined),
+    [preloadValues.count]
   );
-};
+  useMergeAtom(countAtom, setter);
 
-export const AsyncCounterButton = () => {
-  const setState = useAtomSetState(countAtom);
-
-  return (
-    <button
-      style={{ padding: '4px 8px' }}
-      onClick={async () =>
-        setTimeout(() => {
-          setState((count) => count + 1);
-        }, 3000)
-      }
-    >
-      count + 1 after 3000ms
-    </button>
-  );
-};
-
-export const ResetCounterButton = () => {
-  const setState = useAtomSetState(countAtom);
-
-  return (
-    <button style={{ padding: '4px 8px' }} onClick={() => setState(0)}>
-      Reset counter
-    </button>
-  );
-};
-const CounterPage: NextPage = () => {
   return (
     <div className={styles.container}>
       <main className={styles.main}>
@@ -79,11 +54,11 @@ const CounterPage: NextPage = () => {
 
 export default CounterPage;
 
-export const getStaticProps: GetStaticProps = () => {
+export const getStaticProps: GetStaticProps<Props> = () => {
   return {
     props: {
       preloadValues: {
-        [countAtom.key]: 5,
+        count: 5,
       },
     },
   };
