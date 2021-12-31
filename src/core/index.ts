@@ -5,7 +5,14 @@ export { useAtomSetState } from './hooks/useAtomSetState';
 export { useMergeAtom } from './hooks/useMergeAtom';
 
 // types
-export type { AtomValue, AtomOptions, EqualFn, CreateAtom } from './atom/atom';
+export type {
+  EqualFn,
+  Listener,
+  IAtom,
+  AtomValue,
+  AtomOptions,
+  CreateAtom,
+} from './atom/atom';
 export type { UseAtom, UseAtomOptions } from './hooks/useAtom';
 export type { UseAtomState, UseAtomStateOptions } from './hooks/useAtomState';
 export type { SetState, Setter } from './hooks/useAtomSetState';
