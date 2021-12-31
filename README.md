@@ -22,7 +22,7 @@
 - [API](#api)
 
 ## Features
-- Lightweight (less than 3kB size)
+- Lightweight (less than 2kB size)
 - Simple interface
 - Code splitting of state
 - Support for SSR
@@ -54,10 +54,10 @@ export const Counter = () => {
   return (
     <div>
       <p>Counter: {count}</p>
-      <button onClick={() => setCountState(({ count }) => { count: count + 1 })}>
+      <button onClick={() => setCountState((count) => count + 1)}>
         Increment
       </button>
-      <button onClick={() => setCountState(({ count }) => { count: count - 1 })}>
+      <button onClick={() => setCountState((count) => count - 1)}>
         Decrement
       </button>
     </div>
@@ -91,16 +91,65 @@ export const Counter = () => {
   return (
     <div>
       <p>Counter: {count}</p>
-        <button onClick={() => setCountState({ count: count + 1 })}>
+        <button onClick={() => setCountState((count) => count + 1)}>
           Increment
         </button>
-        <button onClick={() => setCountState({ count: count - 1 })}>
+        <button onClick={() => setCountState((count) => count - 1)}>
           Decrement
         </button>
     </div>
   );
 };
 ```
+
+### Updating state outside of react
+We can update the state by rewriting the `atom.value` directly.
+
+This is useful when writing operations outside of the react lifecycle.
+
+```tsx
+import { useAtomState, createAtom } from 'use-light-atom'
+
+type AsyncData = string | undefined
+export const dataAtom = createAtom<AsyncData>();
+
+export const DataDisplayer = () => {
+  const data = useAtomState(dataAtom);
+
+  if ( data === undefined ) {
+    return null
+  }
+
+  return (
+    <p>{data}</p>
+  );
+};
+```
+
+```tsx
+// DataDisplayer will return null
+dataAtom.value = undefined
+
+// DataDisplayer will return 'hogehoge' with rerender
+dataAtom.value = 'hogehoge'
+```
+
+
+### Subscribe atom
+
+By using `atom.subscribe`, we can have a side effect when the value of atom is changed.
+
+```ts
+const counterAtom = createAtom(0);
+
+counterAtom.subscribe((counter: number) => {
+  console.log(`count is ${counter} now`)
+})
+
+// counterAtom will output 'count is 100 now' log
+counterAtom.value = 100
+```
+
 
 ### Selector
 
@@ -150,40 +199,6 @@ export const Counter = () => {
 };
 ```
 
-### Updating state outside of react
-We can update the state by rewriting the `atom.value` directly.
-
-This is useful when writing operations outside of the react lifecycle.
-
-```tsx
-import { useAtomState, createAtom } from 'use-light-atom'
-
-type AsyncData = string | undefined
-export const dataAtom = createAtom<AsyncData>();
-
-export const DataDisplayer = () => {
-  const data = useAtomState(dataAtom);
-
-  if ( data === undefined ) {
-    return null
-  }
-
-  return (
-    <p>{data}</p>
-  );
-};
-
-```
-
-```tsx
-// DataDisplayer will return null
-dataAtom.value = undefined
-
-// DataDisplayer will return 'hogehoge' with rerender
-dataAtom.value = 'hogehoge'
-```
-
-
 ### Static Generation with Next.js
 
 At first, pages component file you want to SG should look like this
@@ -228,7 +243,7 @@ import { createAtom, useAtomState, useMergeAtom } from 'use-light-atom';
 const countAtom = createAtom(0);
 
 const CounterPage: NextPage = ({ preloadValues }) => {
-const setter = useCallback(() => preloadValues.counter, [preloadValues.counter])
+  const setter = useCallback(() => preloadValues.counter, [preloadValues.counter])
   useMergeAtom(countAtom, setter)
   const count = useAtomState(countAtom);
 
@@ -286,7 +301,7 @@ const [state, setState] = useAtom(atom, { selector, equalFn });
 ### `useAtomState` hooks
 
 ```tsx
-const state = useAtomState(atom, useAtomStateOptions);
+const state = useAtomState(atom, { selector, equalFn });
 ```
 
 `useAtomState` is a hooks to get the state of an atom.
@@ -295,8 +310,13 @@ const state = useAtomState(atom, useAtomStateOptions);
 - `atom` (type: `Atom<T>`)
   - Atom created by `createAtom` API.
 
-- `useAtomStateOptions` (type: `UseAtomStateOptions<T>`)
-  - same as `useAtomOptions`.
+- `selector` (type: `(state: T) => S | undefined`)
+   - Function option that allows you to extract only the state you need from the atom.
+
+- `equalFn` (type: `(a: any, b: any) => boolean`)
+  - A function that compares the current value with the next value when it changes.
+  - If `equalFn` is not specified, the `equalFn` specified in atom will be applied.
+  - If the return value is true, re-rendering will occur.
 
 #### Returns
 - `state` (type: `T`)

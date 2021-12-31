@@ -33,7 +33,7 @@ class Atom<T> implements IAtom<T> {
 
   set value(value: T) {
     this.__value = value;
-    this.dispatch(this.__value);
+    this.dispatch();
   }
 
   subscribe(listener: Listener<T>) {
@@ -48,9 +48,9 @@ class Atom<T> implements IAtom<T> {
     }
   }
 
-  private dispatch(...listenerArgs: Parameters<Listener<T>>) {
+  private dispatch() {
     for (const listener of this.__listeners) {
-      listener(...listenerArgs);
+      listener(this.__value);
     }
   }
 }
