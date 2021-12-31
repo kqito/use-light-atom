@@ -22,7 +22,7 @@
 - [API](#api)
 
 ## Features
-- Lightweight (less than 3kB size)
+- Lightweight (less than 2kB size)
 - Simple interface
 - Code splitting of state
 - Support for SSR
@@ -54,10 +54,10 @@ export const Counter = () => {
   return (
     <div>
       <p>Counter: {count}</p>
-      <button onClick={() => setCountState(({ count }) => { count: count + 1 })}>
+      <button onClick={() => setCountState((count) => count + 1)}>
         Increment
       </button>
-      <button onClick={() => setCountState(({ count }) => { count: count - 1 })}>
+      <button onClick={() => setCountState((count) => count - 1)}>
         Decrement
       </button>
     </div>
@@ -91,10 +91,10 @@ export const Counter = () => {
   return (
     <div>
       <p>Counter: {count}</p>
-        <button onClick={() => setCountState({ count: count + 1 })}>
+        <button onClick={() => setCountState((count) => count + 1)}>
           Increment
         </button>
-        <button onClick={() => setCountState({ count: count - 1 })}>
+        <button onClick={() => setCountState((count) => count - 1)}>
           Decrement
         </button>
     </div>
@@ -228,7 +228,7 @@ import { createAtom, useAtomState, useMergeAtom } from 'use-light-atom';
 const countAtom = createAtom(0);
 
 const CounterPage: NextPage = ({ preloadValues }) => {
-const setter = useCallback(() => preloadValues.counter, [preloadValues.counter])
+  const setter = useCallback(() => preloadValues.counter, [preloadValues.counter])
   useMergeAtom(countAtom, setter)
   const count = useAtomState(countAtom);
 
@@ -286,7 +286,7 @@ const [state, setState] = useAtom(atom, { selector, equalFn });
 ### `useAtomState` hooks
 
 ```tsx
-const state = useAtomState(atom, useAtomStateOptions);
+const state = useAtomState(atom, { selector, equalFn });
 ```
 
 `useAtomState` is a hooks to get the state of an atom.
@@ -295,8 +295,13 @@ const state = useAtomState(atom, useAtomStateOptions);
 - `atom` (type: `Atom<T>`)
   - Atom created by `createAtom` API.
 
-- `useAtomStateOptions` (type: `UseAtomStateOptions<T>`)
-  - same as `useAtomOptions`.
+- `selector` (type: `(state: T) => S | undefined`)
+   - Function option that allows you to extract only the state you need from the atom.
+
+- `equalFn` (type: `(a: any, b: any) => boolean`)
+  - A function that compares the current value with the next value when it changes.
+  - If `equalFn` is not specified, the `equalFn` specified in atom will be applied.
+  - If the return value is true, re-rendering will occur.
 
 #### Returns
 - `state` (type: `T`)
