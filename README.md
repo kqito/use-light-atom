@@ -102,6 +102,55 @@ export const Counter = () => {
 };
 ```
 
+### Updating state outside of react
+We can update the state by rewriting the `atom.value` directly.
+
+This is useful when writing operations outside of the react lifecycle.
+
+```tsx
+import { useAtomState, createAtom } from 'use-light-atom'
+
+type AsyncData = string | undefined
+export const dataAtom = createAtom<AsyncData>();
+
+export const DataDisplayer = () => {
+  const data = useAtomState(dataAtom);
+
+  if ( data === undefined ) {
+    return null
+  }
+
+  return (
+    <p>{data}</p>
+  );
+};
+```
+
+```tsx
+// DataDisplayer will return null
+dataAtom.value = undefined
+
+// DataDisplayer will return 'hogehoge' with rerender
+dataAtom.value = 'hogehoge'
+```
+
+
+### Subscribe atom
+
+By using `atom.subscribe`, we can have a side effect when the value of atom is changed.
+
+```ts
+const counterAtom = createAtom(0);
+
+counterAtom.subscribe((counter: number) => {
+  console.log(`count is ${counter} now`)
+})
+
+// counterAtom will output 'count is 100 now' log
+counterAtom.value = 100
+```
+
+
 ### Selector
 
 If specify `selector`, we can extract only the necessary values from the atom
@@ -149,40 +198,6 @@ export const Counter = () => {
   );
 };
 ```
-
-### Updating state outside of react
-We can update the state by rewriting the `atom.value` directly.
-
-This is useful when writing operations outside of the react lifecycle.
-
-```tsx
-import { useAtomState, createAtom } from 'use-light-atom'
-
-type AsyncData = string | undefined
-export const dataAtom = createAtom<AsyncData>();
-
-export const DataDisplayer = () => {
-  const data = useAtomState(dataAtom);
-
-  if ( data === undefined ) {
-    return null
-  }
-
-  return (
-    <p>{data}</p>
-  );
-};
-
-```
-
-```tsx
-// DataDisplayer will return null
-dataAtom.value = undefined
-
-// DataDisplayer will return 'hogehoge' with rerender
-dataAtom.value = 'hogehoge'
-```
-
 
 ### Static Generation with Next.js
 
