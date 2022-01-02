@@ -201,39 +201,7 @@ export const Counter = () => {
 
 ### Static Generation with Next.js
 
-At first, pages component file you want to SG should look like this
-
-
-```tsx
-import type { GetStaticProps, NextPage } from 'next';
-import { createAtom, useAtomState } from 'use-light-atom';
-
-const countAtom = createAtom(0);
-
-const CounterPage: NextPage = () => {
-  const count = useAtomState(countAtom);
-
-  return (
-    <div>
-      <p>Counter: {count}</p>
-    </div>
-  );
-};
-
-export default CounterPage;
-
-export const getStaticProps: GetStaticProps = () => {
-  return {
-    props: {
-      preloadValues: {
-        [countAtom.key]: 100,
-      },
-    },
-  };
-};
-```
-
-Next, you can use the `useMergeAtom` hooks as following.
+We can use the `useMergeAtom` hooks for SSR as following.
 
 
 ```tsx
