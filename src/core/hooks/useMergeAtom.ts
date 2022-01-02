@@ -9,7 +9,7 @@ export const useMergeAtom: UseMergeAtom = (atom, merge) => {
   const setState = useAtomSetState(atom);
 
   useEffect(() => {
-    const nextState = merge(atom.value);
+    const nextState = merge(atom.getValue());
     if (nextState === undefined) {
       return;
     }

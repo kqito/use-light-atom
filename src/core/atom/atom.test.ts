@@ -9,8 +9,8 @@ describe('atom', () => {
       { equalFn: deepEqual }
     );
 
-    expect(countAtom.value).toBe(0);
-    expect(userWithEqualFnAtom.value).toEqual({ name: 'John', age: 22 });
+    expect(countAtom.getValue()).toBe(0);
+    expect(userWithEqualFnAtom.getValue()).toEqual({ name: 'John', age: 22 });
     expect(userWithEqualFnAtom.options.equalFn).toEqual(deepEqual);
   });
 
@@ -21,22 +21,22 @@ describe('atom', () => {
     countAtom.subscribe(mockFn);
 
     const newNumber1 = 100;
-    countAtom.value = newNumber1;
+    countAtom.setValue(newNumber1);
 
-    expect(countAtom.value).toBe(newNumber1);
+    expect(countAtom.getValue()).toBe(newNumber1);
     expect(mockFn).toBeCalledTimes(1);
 
     const newNumber2 = 1000;
-    countAtom.value = newNumber2;
+    countAtom.setValue(newNumber2);
 
-    expect(countAtom.value).toBe(newNumber2);
+    expect(countAtom.getValue()).toBe(newNumber2);
     expect(mockFn).toBeCalledTimes(2);
 
     countAtom.unsubscribe(mockFn);
     const newNumber3 = 10000;
-    countAtom.value = newNumber3;
+    countAtom.setValue(newNumber3);
 
-    expect(countAtom.value).toBe(newNumber3);
+    expect(countAtom.getValue()).toBe(newNumber3);
     expect(mockFn).toBeCalledTimes(2);
   });
 });

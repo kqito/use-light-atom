@@ -2,7 +2,8 @@
 export type EqualFn = (a: any, b: any) => boolean;
 export type Listener<T> = (value: T) => void;
 export interface IAtom<T> {
-  value: T;
+  getValue: () => T;
+  setValue: (value: T) => void;
   options: AtomOptions;
   subscribe: (listener: Listener<T>) => void;
   unsubscribe: (listener: Listener<T>) => void;
@@ -17,9 +18,9 @@ export type CreateAtom = <T>(
 ) => Atom<T>;
 
 class Atom<T> implements IAtom<T> {
+  public options: AtomOptions;
   private __value: T;
   private __listeners: Array<Listener<T>>;
-  public options: AtomOptions;
 
   constructor(value: T, atomOptions: AtomOptions) {
     this.__value = value;
@@ -27,11 +28,11 @@ class Atom<T> implements IAtom<T> {
     this.options = atomOptions;
   }
 
-  get value(): T {
+  getValue() {
     return this.__value;
   }
 
-  set value(value: T) {
+  setValue(value: T) {
     this.__value = value;
     this.dispatch();
   }
