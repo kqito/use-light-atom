@@ -31,12 +31,37 @@ describe('atom', () => {
 
     expect(countAtom.getValue()).toBe(newNumber2);
     expect(mockFn).toBeCalledTimes(2);
+  });
 
-    countAtom.unsubscribe(mockFn);
+  test('UnSubscribe atom', () => {
+    const countAtom = createAtom(0);
+    const unsubscribeMockFn = jest.fn();
+    const returnSubscribeMockFn = jest.fn();
+
+    const unsubscribe = countAtom.subscribe(returnSubscribeMockFn);
+    countAtom.subscribe(unsubscribeMockFn);
+
+    const newNumber1 = 100;
+    countAtom.setValue(newNumber1);
+
+    expect(countAtom.getValue()).toBe(newNumber1);
+    expect(unsubscribeMockFn).toBeCalledTimes(1);
+    expect(returnSubscribeMockFn).toBeCalledTimes(1);
+
+    const newNumber2 = 1000;
+    unsubscribe();
+    countAtom.setValue(newNumber2);
+
+    expect(countAtom.getValue()).toBe(newNumber2);
+    expect(unsubscribeMockFn).toBeCalledTimes(2);
+    expect(returnSubscribeMockFn).toBeCalledTimes(1);
+
     const newNumber3 = 10000;
+    countAtom.unsubscribe(unsubscribeMockFn);
     countAtom.setValue(newNumber3);
 
     expect(countAtom.getValue()).toBe(newNumber3);
-    expect(mockFn).toBeCalledTimes(2);
+    expect(unsubscribeMockFn).toBeCalledTimes(2);
+    expect(returnSubscribeMockFn).toBeCalledTimes(1);
   });
 });

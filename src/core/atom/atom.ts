@@ -1,11 +1,12 @@
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type EqualFn = (a: any, b: any) => boolean;
 export type Listener<T> = (value: T) => void;
+export type Unsubscribe = () => void;
 export interface IAtom<T> {
   getValue: () => T;
   setValue: (value: T) => void;
   options: AtomOptions;
-  subscribe: (listener: Listener<T>) => void;
+  subscribe: (listener: Listener<T>) => Unsubscribe;
   unsubscribe: (listener: Listener<T>) => void;
 }
 export type AtomValue<T> = T extends Atom<infer U> ? U : never;
@@ -37,8 +38,14 @@ class Atom<T> implements IAtom<T> {
     this.dispatch();
   }
 
-  subscribe(listener: Listener<T>) {
+  subscribe(listener: Listener<T>): Unsubscribe {
     this.__listeners.push(listener);
+
+    const unsubscribe = () => {
+      this.unsubscribe(listener);
+    };
+
+    return unsubscribe;
   }
 
   unsubscribe(listener: Listener<T>) {

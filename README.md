@@ -142,14 +142,13 @@ By using `atom.subscribe`, we can have a side effect when the value of atom is c
 ```ts
 const counterAtom = createAtom(0);
 
-counterAtom.subscribe((counter: number) => {
+const unsubscribe = counterAtom.subscribe((counter: number) => {
   console.log(`count is ${counter} now`)
 })
 
 // counterAtom will output 'count is 100 now' log
 counterAtom.setValue(100)
 ```
-
 
 ### Selector
 
