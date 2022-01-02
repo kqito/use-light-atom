@@ -128,10 +128,10 @@ export const DataDisplayer = () => {
 
 ```tsx
 // DataDisplayer will return null
-dataAtom.value = undefined
+dataAtom.setValue(undefined)
 
 // DataDisplayer will return 'hogehoge' with rerender
-dataAtom.value = 'hogehoge'
+dataAtom.setValue('hogehoge')
 ```
 
 
@@ -147,7 +147,7 @@ counterAtom.subscribe((counter: number) => {
 })
 
 // counterAtom will output 'count is 100 now' log
-counterAtom.value = 100
+counterAtom.setValue(100)
 ```
 
 

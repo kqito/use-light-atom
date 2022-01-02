@@ -9,10 +9,10 @@ export const useAtomSetState = <T>(atom: IAtom<T>) => {
   const setState = useCallback<SetState<T>>(
     (setter) => {
       const nextState: T = isCallable<(state: T) => T>(setter)
-        ? setter(atom.value)
+        ? setter(atom.getValue())
         : setter;
 
-      atom.value = nextState;
+      atom.setValue(nextState);
     },
     [atom]
   );

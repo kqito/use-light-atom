@@ -30,8 +30,8 @@ export const useAtomState: UseAtomState = <T, S>(
     [selectStateRef]
   );
 
-  const [state, setState] = useState<S>(selectState(atom.value));
-  const prevStateRef = useRef<S>(selectState(atom.value));
+  const [state, setState] = useState<S>(selectState(atom.getValue()));
+  const prevStateRef = useRef<S>(selectState(atom.getValue()));
 
   useIsomorphicLayoutEffect(() => {
     const equalFn = equalFnRef.current || atom.options.equalFn;
@@ -50,7 +50,7 @@ export const useAtomState: UseAtomState = <T, S>(
     };
 
     // Change state by changed atom value
-    const initialState = selectState(atom.value);
+    const initialState = selectState(atom.getValue());
 
     if (!equalFn(prevStateRef.current, initialState)) {
       setState(initialState);
