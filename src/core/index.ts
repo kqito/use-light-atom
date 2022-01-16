@@ -12,6 +12,7 @@ export type {
   AtomValue,
   AtomOptions,
   CreateAtom,
+  Unsubscribe,
 } from './atom/atom';
 export type { UseAtom, UseAtomOptions } from './hooks/useAtom';
 export type { UseAtomState, UseAtomStateOptions } from './hooks/useAtomState';

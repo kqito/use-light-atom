@@ -103,7 +103,7 @@ export const Counter = () => {
 ```
 
 ### Updating state outside of react
-We can update the state by rewriting the `atom.value` directly.
+We can update the state by using `atom.setValue`.
 
 This is useful when writing operations outside of the react lifecycle.
 
@@ -142,14 +142,19 @@ By using `atom.subscribe`, we can have a side effect when the value of atom is c
 ```ts
 const counterAtom = createAtom(0);
 
-counterAtom.subscribe((counter: number) => {
+const unsubscribe = counterAtom.subscribe((counter: number) => {
   console.log(`count is ${counter} now`)
 })
 
 // counterAtom will output 'count is 100 now' log
 counterAtom.setValue(100)
-```
 
+// Unsubscribe the logging function
+unsubscribe()
+
+// counterAtom will not output log
+counterAtom.setValue(50)
+```
 
 ### Selector
 
